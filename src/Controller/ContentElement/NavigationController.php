@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
 
 /**
- * @ContentElement("jf_navigation", category="texts", template="ce_jf_navigation")
+ * @ContentElement("jf_navigation", category="jointforms", template="ce_jf_navigation")
  */
 class NavigationController extends AbstractContentElementController
 {
@@ -39,7 +39,7 @@ class NavigationController extends AbstractContentElementController
             return $template->getResponse();
         }
 
-        $template->data = $this->getContent('travelgrants');
+        $template->data = $this->getContent($model->jf_environment);
 
         return $template->getResponse();
     }

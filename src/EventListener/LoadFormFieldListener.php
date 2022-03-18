@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace Trilobit\JointformsBundle\EventListener;
 
 use Contao\CoreBundle\ServiceAnnotation\Hook;
+use Contao\Form;
+use Contao\Widget;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
 
 /**
@@ -19,12 +21,16 @@ use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
  */
 class LoadFormFieldListener extends ConfigurationProvider
 {
-    public function __invoke($objWidget, $formId, $arrData, $that): object
+    public function __invoke(Widget $widget, string $formId, array $formData, Form $form): object
     {
-        $jf = new ConfigurationProvider('travelgrants');
+        if (empty($form->jf_environment)) {
+            return $widget;
+        }
 
-        $objWidget->value = $jf->getFormValue($objWidget);
+        $jf = new ConfigurationProvider($form->jf_environment);
 
-        return $objWidget;
+        $widget->value = $jf->getFormValue($widget);
+
+        return $widget;
     }
 }

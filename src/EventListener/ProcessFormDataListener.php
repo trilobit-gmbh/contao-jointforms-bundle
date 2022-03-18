@@ -33,7 +33,11 @@ class ProcessFormDataListener
         $formId = (int) $formData['id'];
         $formKey = 'form'.$formData['id'];
 
-        $jf = new ConfigurationProvider('travelgrants');
+        if (empty($form->jf_environment)) {
+            return;
+        }
+
+        $jf = new ConfigurationProvider($form->jf_environment);
         $item = $jf->getElementByTypeAndId('tl_form', $formId);
 
         if (empty($item)) {

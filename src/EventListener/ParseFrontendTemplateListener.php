@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Trilobit\JointformsBundle\EventListener;
 
 use Contao\CoreBundle\ServiceAnnotation\Hook;
+use Contao\FrontendTemplate;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
 
 /**
@@ -19,15 +20,15 @@ use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
  */
 class ParseFrontendTemplateListener
 {
-    public function __invoke($buffer, $template, $element): string
+    public function __invoke(string $buffer, string $templateName, FrontendTemplate $template): string
     {
-        if (empty($element->jf_visible_expression)) {
+        if (empty($template->jf_visible_expression)) {
             return $buffer;
         }
 
         $jf = new ConfigurationProvider('travelgrants');
 
-        if ($jf->isElementVisible($element->jf_visible_expression)) {
+        if ($jf->isElementVisible($template->jf_visible_expression)) {
             return $buffer;
         }
 

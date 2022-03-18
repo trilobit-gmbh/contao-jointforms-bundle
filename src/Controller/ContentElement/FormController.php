@@ -27,7 +27,7 @@ use Trilobit\FormvalidationBundle\ModuleFormGenerator;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
 
 /**
- * @ContentElement("jf_form", category="texts", template="ce_jf_form")
+ * @ContentElement("jf_form", category="jointforms", template="ce_jf_form")
  */
 class FormController extends AbstractContentElementController
 {
@@ -41,8 +41,7 @@ class FormController extends AbstractContentElementController
 
             return $template->getResponse();
         }
-
-        $template->data = $this->getContent('travelgrants');
+        $template->data = $this->getContent($model->jf_environment);
 
         return $template->getResponse();
     }
