@@ -62,6 +62,19 @@ class ConfigurationProvider
         return $url;
     }
 
+    public static function getEnvironments()
+    {
+        $config = System::getContainer()->getParameter('trilobit_jointforms');
+
+        if (empty($config)
+            || !\array_key_exists('environments', $config)
+        ) {
+            return [];
+        }
+
+        return array_keys($config['environments']);
+    }
+
     public function getElementByTypeAndId($type, $id): array
     {
         foreach ($this->config['items'] as $item) {

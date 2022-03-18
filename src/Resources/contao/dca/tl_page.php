@@ -21,7 +21,7 @@ $GLOBALS['TL_DCA']['tl_page']['fields']['jf_title'] = [
     'eval' => ['tl_class' => 'w50'],
 ];
 
- PaletteManipulator::create()
+PaletteManipulator::create()
     ->addField(['jf_title'], 'pageTitle')
     ->applyToPalette('regular', 'tl_page')
-    ;
+;

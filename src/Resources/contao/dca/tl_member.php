@@ -33,6 +33,9 @@ $GLOBALS['TL_DCA']['tl_member']['fields']['jf_complete'] = [
 
 PaletteManipulator::create()
     ->addLegend('jf_legend', 'account_legend', PaletteManipulator::POSITION_BEFORE)
-    ->addField(['jf_data', 'jf_complete'], 'jf_legend', PaletteManipulator::POSITION_APPEND)
+    ->addField([
+        'jf_data',
+        'jf_complete',
+    ], 'jf_legend', PaletteManipulator::POSITION_APPEND)
     ->applyToPalette('default', 'tl_member')
 ;

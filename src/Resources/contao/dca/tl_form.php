@@ -10,6 +10,7 @@ declare(strict_types=1);
  */
 
 use Contao\CoreBundle\DataContainer\PaletteManipulator;
+use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
 
 $GLOBALS['TL_DCA']['tl_form']['fields']['jf_title'] = [
     'exclude' => true,
@@ -31,7 +32,20 @@ $GLOBALS['TL_DCA']['tl_form']['fields']['jf_onDocumentReady'] = [
     'eval' => ['tl_class' => 'w50'],
 ];
 
- PaletteManipulator::create()
-    ->addField(['jf_title,jf_onDocumentReady'], 'allowTags')
+$GLOBALS['TL_DCA']['tl_form']['fields']['jf_environment'] = [
+    'exclude' => true,
+    'filter' => true,
+    'inputType' => 'select',
+    'options' => ConfigurationProvider::getEnvironments(),
+    'eval' => ['chosen' => true, 'includeBlankOption' => true, 'tl_class' => 'clr w50'],
+    'sql' => "varchar(256) NOT NULL default ''",
+];
+
+PaletteManipulator::create()
+    ->addField([
+        'jf_environment',
+        'jf_title',
+        'jf_onDocumentReady',
+    ], 'allowTags')
     ->applyToPalette('default', 'tl_form')
-    ;
+;

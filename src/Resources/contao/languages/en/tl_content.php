@@ -9,5 +9,11 @@ declare(strict_types=1);
  * @link       http://github.com/trilobit-gmbh/contao-jointforms-bundle
  */
 
+$GLOBALS['TL_LANG']['tl_content']['jf_legend'] = 'Joint Forms settings';
+
 $GLOBALS['TL_LANG']['tl_content']['jf_visible_expression'][0] = 'Expression for visibility';
 $GLOBALS['TL_LANG']['tl_content']['jf_visible_expression'][1] = 'For syntax check <a href="https://symfony.com/doc/current/components/expression_language/syntax.html"><u>the symfony language expression manual</u></a>.';
+$GLOBALS['TL_LANG']['tl_content']['jf_environment'][0] = 'Joint Forms environment';
+$GLOBALS['TL_LANG']['tl_content']['jf_environment'][1] = 'Please select the Joint Forms environment.';
+$GLOBALS['TL_LANG']['tl_content']['add_jf_logic'][0] = 'Add Joint Forms logic';
+$GLOBALS['TL_LANG']['tl_content']['add_jf_logic'][1] = 'Add Joint Forms logic to the content element.';
