@@ -37,27 +37,19 @@ class SummaryController extends AbstractContentElementController
             $template = new BackendTemplate('be_wildcard');
             $template->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_summary'][0]).' ###';
 
-            return $template->parse();
+            return $template->getResponse();
         }
 
         $template->data = $this->getContent('travelgrants');
 
         return $template->getResponse();
-        exit('2');
     }
 
-    /*
-    public function generate(): string
-    {
-        //return $this->getContent();
-    }
-    */
-
-    protected function getContent($environment): array //string
+    protected function getContent($environment): array
     {
         $jf = new ConfigurationProvider($environment);
 
-        if (empty($jf->config)) {
+        if (empty($jf->config) || empty($jf->config['items'])) {
             return [];
         }
 
@@ -69,60 +61,56 @@ class SummaryController extends AbstractContentElementController
             $json = new \stdClass();
         }
 
-        $dataSections = [];
+        $data = [];
+        $step = 0;
 
-        if (!empty($jf->config)) {
-            $step = 0;
-            foreach ($jf->config['items'] as $item) {
-                if (empty($item['visible']) || 'tl_form' !== $item['type'] || true === $item['submit']) {
+        foreach ($jf->config['items'] as $item) {
+            if (empty($item['visible']) || 'tl_form' !== $item['type'] || true === $item['submit']) {
+                continue;
+            }
+
+            $formKey = 'form'.$item['id'];
+
+            $form = FormModel::findByPk($item['id']);
+            $fields = FormFieldModel::findByPid(
+                $item['id'],
+                [
+                    'order' => 'sorting',
+                ]
+            )->fetchAll();
+
+            $items = [];
+            foreach ($fields as $key => $field) {
+                if (!empty($field['invisible'])) {
                     continue;
                 }
 
-                $formKey = 'form'.$item['id'];
-
-                $form = FormModel::findByPk($item['id']);
-                $fields = FormFieldModel::findByPid(
-                    $item['id'],
-                    [
-                        'order' => 'sorting',
-                    ]
-                )->fetchAll();
-
-                $dataFields = [];
-                foreach ($fields as $key => $field) {
-                    if (!empty($field['invisible'])) {
-                        continue;
-                    }
-
-                    if (!\in_array($field['type'], ['text', 'password', 'textarea', 'select', 'radio', 'checkbox', 'upload', 'range', 'conditionalselect', 'select_plus'], true)) {
-                        continue;
-                    }
-
-                    $dataFields[] = [
-                        'type' => $field['type'],
-                        'name' => $field['name'],
-                        'value' => (!empty($value = $json->{$formKey}->{$field['name']}) ? $value : null),
-                        'label' => $field['label'],
-                        'jf_label' => $field['jf_short_label'],
-                    ];
+                if (!\in_array($field['type'], ['text', 'password', 'textarea', 'select', 'radio', 'checkbox', 'upload', 'range', 'conditionalselect', 'select_plus'], true)) {
+                    continue;
                 }
 
-                $dataSections[] = [
-                    'form' => [
-                        'step' => ++$step,
-                        'id' => $item['id'],
-                        'key' => $formKey,
-                        'alias' => $form->alias,
-                        'title' => $item['title'],
-                        'jf_title' => $item['jf_title'],
-                    ],
-                    'fields' => $dataFields,
+                $items[] = [
+                    'type' => $field['type'],
+                    'name' => $field['name'],
+                    'value' => (!empty($value = $json->{$formKey}->{$field['name']}) ? $value : null),
+                    'label' => $field['label'],
+                    'jf_label' => $field['jf_short_label'],
                 ];
             }
+
+            $data[] = [
+                'form' => [
+                    'step' => ++$step,
+                    'id' => $item['id'],
+                    'key' => $formKey,
+                    'alias' => $form->alias,
+                    'title' => $item['title'],
+                    'jf_title' => $item['jf_title'],
+                ],
+                'fields' => $items,
+            ];
         }
 
-        return $dataSections;
-
-        return $buffer;
+        return $data;
     }
 }

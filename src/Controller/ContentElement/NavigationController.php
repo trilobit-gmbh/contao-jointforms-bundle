@@ -24,52 +24,50 @@ use Symfony\Component\HttpFoundation\Response;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
 
 /**
- * @ContentElement(jointforms_navigation, category="texts")
- * // template="ce_jointforms_navigation"
+ * @ContentElement("jf_navigation", category="texts", template="ce_jf_navigation")
  */
 class NavigationController extends AbstractContentElementController
 {
     public function getResponse(Template $template, ContentModel $model, Request $request): ?Response
     {
-        return new Response($this->generate());
-    }
-
-    public function generate(): string
-    {
         $request = System::getContainer()->get('request_stack')->getCurrentRequest();
 
         if ($request && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
-            $objTemplate = new BackendTemplate('be_wildcard');
-            $objTemplate->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_navigation'][0]).' ###';
+            $template = new BackendTemplate('be_wildcard');
+            $template->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_navigation'][0]).' ###';
 
-            return $objTemplate->parse();
+            return $template->getResponse();
         }
 
-        return $this->getContent();
+        $template->data = $this->getContent('travelgrants');
+
+        return $template->getResponse();
     }
 
-    protected function getContent(): string
+    protected function getContent($environment): array
     {
-        $buffer = '';
+        $jf = new ConfigurationProvider($environment);
 
-        $jf = new ConfigurationProvider('travelgrants');
-
-        if (!empty($jf->config)) {
-            foreach ($jf->config['items'] as $item) {
-                if (empty($item['visible'])) {
-                    continue;
-                }
-
-                $output = new ContentHyperlink(new ContentModel());
-                $output->type = 'hyperlink';
-                $output->url = $item['link'];
-                $output->linkTitle = $item['title'];
-                $output->cssID = ['', $item['class']];
-
-                $buffer .= !empty($item = $output->generate()) ? $item : '';
-            }
+        if (empty($jf->config) || empty($jf->config['items'])) {
+            return [];
         }
 
-        return $buffer;
+        $data = [];
+
+        foreach ($jf->config['items'] as $item) {
+            if (empty($item['visible'])) {
+                continue;
+            }
+
+            $output = new ContentHyperlink(new ContentModel());
+            $output->type = 'hyperlink';
+            $output->url = $item['link'];
+            $output->linkTitle = $item['title'];
+            $output->cssID = ['', $item['class']];
+
+            $data[] = !empty($item = $output->generate()) ? $item : '';
+        }
+
+        return $data;
     }
 }

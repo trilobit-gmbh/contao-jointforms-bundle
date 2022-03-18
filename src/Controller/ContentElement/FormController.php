@@ -27,46 +27,55 @@ use Trilobit\FormvalidationBundle\ModuleFormGenerator;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
 
 /**
- * @ContentElement(jointforms_form, category="texts")
- * // template="ce_jointforms_navigation"
+ * @ContentElement("jf_form", category="texts", template="ce_jf_form")
  */
 class FormController extends AbstractContentElementController
 {
     public function getResponse(Template $template, ContentModel $model, Request $request): ?Response
     {
-        return new Response($this->generate());
-    }
-
-    public function generate(): string
-    {
         $request = System::getContainer()->get('request_stack')->getCurrentRequest();
 
         if ($request && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
-            $objTemplate = new BackendTemplate('be_wildcard');
-            $objTemplate->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_form'][0]).' ###';
+            $template = new BackendTemplate('be_wildcard');
+            $template->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_form'][0]).' ###';
 
-            return $objTemplate->parse();
+            return $template->getResponse();
         }
 
-        return $this->getContent();
+        $template->data = $this->getContent('travelgrants');
+
+        return $template->getResponse();
     }
 
-    protected function getContent(): string
+    protected function getContent($environment): array
     {
-        $jf = new ConfigurationProvider('travelgrants');
+        $jf = new ConfigurationProvider($environment);
 
-        if (empty($jf->config)) {
-            return '';
+        if (empty($jf->config) || empty($jf->config['items'])) {
+            return [];
         }
 
         $model = FormModel::findByIdOrAlias($jf->currentForm);
 
         if (empty($model)) {
-            return '';
+            return [];
         }
 
         $jf->page->title = $model->jf_title ?: $model->title;
 
+        $model->typePrefix = 'ce_';
+        $model->form = $model->id;
+
+        $class = class_exists(ModuleFormGenerator::class) ? '\Trilobit\FormvalidationBundle\ModuleFormGenerator' : '\Contao\Form';
+
+        $output = new $class($model);
+        $output->id = $model->id;
+
+        return [
+            'title' => $model->title,
+            'jf_title' => $model->jf_title,
+            'form' => $output->generate(),
+        ];
         $buffer = '';
 
         $output = new ContentHeadline(new ContentModel());
