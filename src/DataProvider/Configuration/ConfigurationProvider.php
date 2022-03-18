@@ -5,7 +5,8 @@ declare(strict_types=1);
 /*
  * @copyright  trilobit GmbH
  * @author     trilobit GmbH <https://github.com/trilobit-gmbh>
- * @license    proprietary
+ * @license    LGPL-3.0-or-later
+ * @link       http://github.com/trilobit-gmbh/contao-refresh-bundle
  */
 
 namespace Trilobit\JointformsBundle\DataProvider\Configuration;
@@ -50,7 +51,8 @@ class ConfigurationProvider
     {
         $url = System::getContainer()
             ->get('contao.routing.url_generator')
-            ->generate(($page->alias ?: $page->id).('' !== $autoItem ? '/'.$autoItem : ''), []);
+            ->generate(($page->alias ?: $page->id).('' !== $autoItem ? '/'.$autoItem : ''), [])
+        ;
 
         // Remove path from absolute URLs
         if (0 === strncmp($url, '/', 1)) {
