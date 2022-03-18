@@ -75,6 +75,15 @@ trilobit_jointforms:
 ```
 example configuration
 
+**done**
+
+Funktionalität
+* Inhaltselemente Auswahl der Konfiguration
+* Weitere Felder auswählbar machen
+  * Templates
+  * Gruppenbeschränkungen
+  * Laufzeit
+
 **todo**
 
 Doku
@@ -85,13 +94,6 @@ Doku
 * app.date `//Date::parse('Y-m-d');`
 * app.time `//Date::parse('H:i');`
 * app.tstamp `//time();`
-
-Funktionalität
-* Inhaltselemente Auswahl der Konfiguration
-* Weitere Felder auswählbar machen
-  * Templates
-  * Gruppenbeschränkungen
-  * Laufzeit
 
 Kompatibilität
 * Contao 4.13
