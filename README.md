@@ -30,7 +30,7 @@ You can define the following configuration parameters via your `config.yml` file
 # example
 trilobit_jointforms:
   environments:
-    travelgrants:
+    my_form_app:
       defaultPageIds:
         tl_form: 16
         tl_node: 12
