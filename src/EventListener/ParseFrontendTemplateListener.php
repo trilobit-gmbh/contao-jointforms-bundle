@@ -27,7 +27,7 @@ class ParseFrontendTemplateListener
 
         $jf = new ConfigurationProvider('travelgrants');
 
-        if ($jf->isArticleVisible($element->jf_visible_expression)) {
+        if ($jf->isElementVisible($element->jf_visible_expression)) {
             return $buffer;
         }
 
