@@ -96,3 +96,7 @@ Funktionalität
 Kompatibilität
 * Contao 4.13
 * PHP 8
+
+Veröffentlichen
+* GitHub
+* Packagist
