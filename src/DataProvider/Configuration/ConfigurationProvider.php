@@ -75,7 +75,7 @@ class ConfigurationProvider
         return [];
     }
 
-    public function isArticleVisible($expression): bool
+    public function isElementVisible($expression): bool
     {
         if (null === $this->tokenChecker || !$this->tokenChecker->hasFrontendUser()) {
             return true;
@@ -235,7 +235,7 @@ class ConfigurationProvider
         return $vars;
     }
 
-    protected function getCurrentForm($debug = ''): ?int
+    protected function getCurrentForm(): ?int
     {
         if (!\is_array($this->config['items'])) {
             return null;
