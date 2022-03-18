@@ -8,4 +8,6 @@ services:
         autoconfigure: true
         public: true
 
+    Trilobit\JointformsBundle\Controller\ContentElement\NavigationController: ~
+    Trilobit\JointformsBundle\Controller\ContentElement\FormController: ~
     Trilobit\JointformsBundle\Controller\ContentElement\SummaryController: ~
