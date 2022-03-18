@@ -1,0 +1,18 @@
+
+<<?= $this->hl; ?> class="<?= $this->class; ?>"<?= $this->cssID; ?><?php if ($this->style) { ?> style="<?= $this->style; ?>"<?php } ?>>
+    <?= $this->headline; ?>
+</<?= $this->hl; ?>>
+
+<?php foreach ($this->data as $step) { ?>
+    <section class="summary step<?= $step['form']['step']; ?> <?= $step['form']['alias']; ?>">
+        <h2><?= $step['form']['jf_title'] ?: $step['form']['title']; ?></h2>
+        <table>
+            <?php foreach ($step['fields'] as $field) { ?>
+                <tr>
+                    <th title="<?= $field['name']; ?> <?= $field['type']; ?>"><?= $field['jf_label'] ?: $field['label']; ?></th>
+                    <td><?= $field['value'] ?: '-/-'; ?></td>
+                </tr>
+            <?php } ?>
+        </table>
+    </section>
+<?php } ?>

@@ -12,11 +12,9 @@ declare(strict_types=1);
 namespace Trilobit\JointformsBundle\Controller\ContentElement;
 
 use Contao\BackendTemplate;
-use Contao\ContentHeadline;
 use Contao\ContentModel;
 use Contao\CoreBundle\Controller\ContentElement\AbstractContentElementController;
 use Contao\CoreBundle\ServiceAnnotation\ContentElement;
-use Contao\Form;
 use Contao\FormFieldModel;
 use Contao\FormModel;
 use Contao\System;
@@ -27,39 +25,41 @@ use Symfony\Component\HttpFoundation\Response;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
 
 /**
- * @ContentElement(jointforms_form, category="texts")
- * // template="ce_jointforms_navigation"
+ * @ContentElement("jf_summary", category="texts", template="ce_jf_summary")
  */
 class SummaryController extends AbstractContentElementController
 {
-    public function getResponse(Template $template, ContentModel $model, Request $request): ?Response
-    {
-        return new Response($this->generate());
-    }
-
-    public function generate(): string
+    protected function getResponse(Template $template, ContentModel $model, Request $request): ?Response
     {
         $request = System::getContainer()->get('request_stack')->getCurrentRequest();
 
         if ($request && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
-            $objTemplate = new BackendTemplate('be_wildcard');
-            $objTemplate->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_summary'][0]).' ###';
+            $template = new BackendTemplate('be_wildcard');
+            $template->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_summary'][0]).' ###';
 
-            return $objTemplate->parse();
+            return $template->parse();
         }
 
-        return $this->getContent();
+        $template->data = $this->getContent('travelgrants');
+
+        return $template->getResponse();
+        exit('2');
     }
 
-    protected function getContent(): string
+    /*
+    public function generate(): string
     {
-        $jf = new ConfigurationProvider('travelgrants');
+        //return $this->getContent();
+    }
+    */
+
+    protected function getContent($environment): array //string
+    {
+        $jf = new ConfigurationProvider($environment);
 
         if (empty($jf->config)) {
-            return '';
+            return [];
         }
-
-        $buffer = '';
 
         $json = $jf->config['member']->jf_data;
 
@@ -68,6 +68,8 @@ class SummaryController extends AbstractContentElementController
         } else {
             $json = new \stdClass();
         }
+
+        $dataSections = [];
 
         if (!empty($jf->config)) {
             $step = 0;
@@ -86,33 +88,40 @@ class SummaryController extends AbstractContentElementController
                     ]
                 )->fetchAll();
 
-                $headline = new ContentHeadline(new ContentModel());
-                $headline->type = 'headline';
-                $headline->headline = $item['jf_title'] ?: $item['title'];
-                $headline->hl = 'h2';
-
-                $buffer .= '<section class="summary step'.$step++.' '.$form->alias.'">';
-
-                $buffer .= !empty($headline = $headline->generate()) ? $headline : '';
-
-                $buffer .= '<table>';
+                $dataFields = [];
                 foreach ($fields as $key => $field) {
                     if (!empty($field['invisible'])) {
                         continue;
                     }
+
                     if (!\in_array($field['type'], ['text', 'password', 'textarea', 'select', 'radio', 'checkbox', 'upload', 'range', 'conditionalselect', 'select_plus'], true)) {
                         continue;
                     }
 
-                    $buffer .= '<tr>'
-                        .'<th title="'.$field['name'].'">'.($field['jf_short_label'] ?: $field['label']).'</th>'
-                        .'<td>'.(!empty($value = $json->{$formKey}->{$field['name']}) ? $value : '-/-').'</td>'
-                        .'</tr>';
+                    $dataFields[] = [
+                        'type' => $field['type'],
+                        'name' => $field['name'],
+                        'value' => (!empty($value = $json->{$formKey}->{$field['name']}) ? $value : null),
+                        'label' => $field['label'],
+                        'jf_label' => $field['jf_short_label'],
+                    ];
                 }
-                $buffer .= '</table>';
-                $buffer .= '</section>';
+
+                $dataSections[] = [
+                    'form' => [
+                        'step' => ++$step,
+                        'id' => $item['id'],
+                        'key' => $formKey,
+                        'alias' => $form->alias,
+                        'title' => $item['title'],
+                        'jf_title' => $item['jf_title'],
+                    ],
+                    'fields' => $dataFields,
+                ];
             }
         }
+
+        return $dataSections;
 
         return $buffer;
     }
