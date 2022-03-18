@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * @copyright  trilobit GmbH
+ * @author     trilobit GmbH <https://github.com/trilobit-gmbh>
+ * @license    proprietary
+ */
+
+namespace Trilobit\JointformsBundle\ContaoManager;
+
+use Contao\CoreBundle\ContaoCoreBundle;
+use Contao\ManagerPlugin\Bundle\BundlePluginInterface;
+use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
+use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
+use Trilobit\JointformsBundle\TrilobitJointformsBundle;
+
+/**
+ * Plugin for the Contao Manager.
+ */
+class Plugin implements BundlePluginInterface
+{
+    /**
+     * {@inheritDoc}
+     */
+    public function getBundles(ParserInterface $parser)
+    {
+        return [
+            BundleConfig::create(TrilobitJointformsBundle::class)
+                ->setLoadAfter([
+                    ContaoCoreBundle::class,
+                ]),
+        ];
+    }
+}
