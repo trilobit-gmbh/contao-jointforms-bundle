@@ -42,5 +42,4 @@ class Plugin implements BundlePluginInterface
 
         $loader->load($file);
     }
-
 }
