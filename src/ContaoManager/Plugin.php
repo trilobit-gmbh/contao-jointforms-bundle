@@ -15,6 +15,7 @@ use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\ManagerPlugin\Bundle\BundlePluginInterface;
 use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Trilobit\JointformsBundle\TrilobitJointformsBundle;
 
 /**
@@ -34,4 +35,12 @@ class Plugin implements BundlePluginInterface
                 ]),
         ];
     }
+
+    public function registerContainerConfiguration(LoaderInterface $loader, array $config)
+    {
+        $file = '@TrilobitJointformsBundle/Resources/config/service.yml';
+
+        $loader->load($file);
+    }
+
 }

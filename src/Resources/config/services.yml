@@ -3,3 +3,9 @@ services:
         Symfony\Component\DependencyInjection\ContainerAwareInterface:
             calls:
                 - ['setContainer', ['@service_container']]
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    Trilobit\JointformsBundle\Controller\ContentElement\SummaryController: ~
