@@ -22,11 +22,11 @@ class ParseFrontendTemplateListener
 {
     public function __invoke(string $buffer, string $templateName, FrontendTemplate $template): string
     {
-        if (empty($template->jf_visible_expression)) {
+        if (empty($template->jf_visible_expression) || empty($template->jf_environment)) {
             return $buffer;
         }
 
-        $jf = new ConfigurationProvider('travelgrants');
+        $jf = new ConfigurationProvider($template->jf_environment);
 
         if ($jf->isElementVisible($template->jf_visible_expression)) {
             return $buffer;
