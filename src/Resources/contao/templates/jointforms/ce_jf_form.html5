@@ -1,0 +1,9 @@
+<?php $this->extend('block_unsearchable'); ?>
+
+<?php $this->block('content'); ?>
+
+<h2><?= $this->data['title']; ?></h2>
+
+<?= $this->data['form']; ?>
+
+<?php $this->endblock(); ?>

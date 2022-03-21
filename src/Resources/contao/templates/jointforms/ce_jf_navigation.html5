@@ -1,0 +1,9 @@
+<?php $this->extend('block_unsearchable'); ?>
+
+<?php $this->block('content'); ?>
+
+<?php foreach ($this->data as $step) { ?>
+    <?= $step; ?>
+<?php } ?>
+
+<?php $this->endblock(); ?>

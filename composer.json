@@ -1,0 +1,46 @@
+{
+    "name": "trilobit-gmbh/contao-jointforms-bundle",
+    "description": "Contao 4 jointforms bundle",
+    "type": "contao-bundle",
+    "license": "LGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "trilobit GmbH",
+            "homepage": "https://github.com/trilobit-gmbh"
+        }
+    ],
+    "require": {
+        "contao/core-bundle": "~4.9",
+        "php": "^7.3",
+        "ext-json": "*",
+        "trilobit-gmbh/trilobit-datepicker": "^1.0"
+    },
+    "require-dev": {
+        "contao/manager-plugin": "^2.11",
+        "friendsofphp/php-cs-fixer": "^3.0"
+    },
+    "conflict": {
+        "contao-components/installer": "<1.3",
+        "contao/core-bundle": "<4.4.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Trilobit\\JointformsBundle\\": "src/"
+        },
+        "exclude-from-classmap": [
+            "src/Resources/contao/config/",
+            "src/Resources/contao/dca/",
+            "src/Resources/contao/languages/",
+            "src/Resources/contao/templates/"
+        ]
+    },
+    "extra": {
+        "contao-manager-plugin": "Trilobit\\JointformsBundle\\ContaoManager\\Plugin"
+    },
+    "config": {
+        "allow-plugins": {
+            "contao-components/installer": true,
+            "contao/manager-plugin": true
+        }
+    }
+}
