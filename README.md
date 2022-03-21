@@ -75,15 +75,6 @@ trilobit_jointforms:
 ```
 example configuration
 
-**done**
-
-Funktionalität
-* Inhaltselemente Auswahl der Konfiguration
-* Weitere Felder auswählbar machen
-  * Templates
-  * Gruppenbeschränkungen
-  * Laufzeit
-
 **todo**
 
 Doku
@@ -98,7 +89,3 @@ Doku
 Kompatibilität
 * Contao 4.13
 * PHP 8
-
-Veröffentlichen
-* GitHub
-* Packagist
