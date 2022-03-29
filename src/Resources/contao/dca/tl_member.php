@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 use Contao\CoreBundle\DataContainer\PaletteManipulator;
 
+$GLOBALS['TL_DCA']['tl_member']['palettes']['__selector__'][] = 'jf_complete';
+$GLOBALS['TL_DCA']['tl_member']['subpalettes']['jf_complete'] = 'jf_complete_datim';
+
 $GLOBALS['TL_DCA']['tl_member']['fields']['jf_data'] = [
     'exclude' => true,
     'search' => true,
@@ -23,11 +26,19 @@ $GLOBALS['TL_DCA']['tl_member']['fields']['jf_data'] = [
 
 $GLOBALS['TL_DCA']['tl_member']['fields']['jf_complete'] = [
     'exclude' => true,
+    'filter' => true,
+    'inputType' => 'checkbox',
+    'eval' => ['submitOnChange' => true],
+    'sql' => "char(1) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_member']['fields']['jf_complete_datim'] = [
+    'exclude' => true,
     'search' => true,
     'sorting' => true,
     'flag' => 1,
     'inputType' => 'text',
-    'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'w50 wizard'],
+    'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'clr w50 wizard'],
     'sql' => "varchar(10) NOT NULL default ''",
 ];
 
