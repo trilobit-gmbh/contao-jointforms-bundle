@@ -20,8 +20,8 @@ $GLOBALS['TL_DCA']['tl_member']['fields']['jf_data'] = [
     'sorting' => true,
     'flag' => 1,
     'inputType' => 'textarea',
+    'eval' => ['readonly' => true],
     'sql' => 'text null',
-    'eval' => [],
 ];
 
 $GLOBALS['TL_DCA']['tl_member']['fields']['jf_complete'] = [
