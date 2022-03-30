@@ -100,9 +100,11 @@ class ConfigurationProvider
 
         $config['member'] = FrontendUser::getInstance();
 
-        if (!empty($config['member']->jf_data)) {
+        $json = html_entity_decode($config['member']->jf_data);
+
+        if (!empty($json)) {
             try {
-                $config['jointforms'] = json_decode($config['member']->jf_data, false, 512, \JSON_THROW_ON_ERROR);
+                $config['jointforms'] = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
             } catch (\Exception $e) {
                 $config['jointforms'] = new \stdClass();
             }

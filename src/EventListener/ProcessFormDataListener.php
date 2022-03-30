@@ -13,6 +13,7 @@ namespace Trilobit\JointformsBundle\EventListener;
 
 use Contao\Controller;
 use Contao\CoreBundle\ServiceAnnotation\Hook;
+use Contao\Dbafs;
 use Contao\FilesModel;
 use Contao\Form;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
@@ -48,8 +49,6 @@ class ProcessFormDataListener
             && '1' === $jf->config['member']->assignDir
             && !empty($homeDir = FilesModel::findByUuid($jf->config['member']->homeDir)->path) ? $homeDir : ''
         ) {
-            $homeDir = $jf->rootDir.'/'.$homeDir;
-
             foreach ($files as $key => $file) {
                 if (0 === $file['error']) {
                     $parts = pathinfo($file['name']);
@@ -59,18 +58,28 @@ class ProcessFormDataListener
 
                     if (file_exists($file['tmp_name'])) {
                         if ($jf->config['checkPdf']) {
-                            system('pdf2ps "'.$file['tmp_name'].'" - | ps2pdf - "'.$name.'"');
-                        } elseif ($file['tmp_name'] !== $name) {
-                            rename($file['tmp_name'], $name);
+                            system('pdf2ps "'.$file['tmp_name'].'" - | ps2pdf - "'.$jf->rootDir.'/'.$name.'"');
+                        } elseif ($file['tmp_name'] !== $jf->rootDir.'/'.$name) {
+                            rename($file['tmp_name'], $jf->rootDir.'/'.$name);
                         }
                     }
 
                     $submittedData[$key] = $key.'.'.$extension;
+
+                    Dbafs::addResource($name);
                 }
             }
         }
 
-        $json = $jf->config['member']->jf_data;
+        $json = html_entity_decode($jf->config['member']->jf_data);
+
+        if (!empty($json)) {
+            try {
+                $config['jointforms'] = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
+            } catch (\Exception $e) {
+                $config['jointforms'] = new \stdClass();
+            }
+        }
 
         if (!empty($json)) {
             $json = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
@@ -85,7 +94,8 @@ class ProcessFormDataListener
         $json->last_modified = time();
 
         if (!empty($item['submit'])) {
-            $jf->config['member']->jf_complete = $json->last_modified;
+            $jf->config['member']->jf_complete = '1';
+            $jf->config['member']->jf_complete_datim = $json->last_modified;
         }
 
         $jf->config['member']->jf_data = json_encode($json, \JSON_THROW_ON_ERROR);
