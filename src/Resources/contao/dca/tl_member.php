@@ -36,7 +36,7 @@ $GLOBALS['TL_DCA']['tl_member']['fields']['jf_complete_datim'] = [
     'exclude' => true,
     'search' => true,
     'sorting' => true,
-    'flag' => 1,
+    'flag' => 6,
     'inputType' => 'text',
     'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'clr w50 wizard'],
     'sql' => "varchar(10) NOT NULL default ''",
