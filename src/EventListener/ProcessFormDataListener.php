@@ -57,16 +57,28 @@ class ProcessFormDataListener
                     $name = $homeDir.'/'.$key.'.'.$extension;
 
                     if (file_exists($file['tmp_name'])) {
+                        if (file_exists($jf->rootDir.'/'.$name)) {
+                            unlink($jf->rootDir.'/'.$name);
+                        }
+
                         if ($jf->config['checkPdf']) {
                             system('pdf2ps "'.$file['tmp_name'].'" - | ps2pdf - "'.$jf->rootDir.'/'.$name.'"');
                         } elseif ($file['tmp_name'] !== $jf->rootDir.'/'.$name) {
-                            rename($file['tmp_name'], $jf->rootDir.'/'.$name);
+                            copy($file['tmp_name'], $jf->rootDir.'/'.$name);
                         }
                     }
 
                     $submittedData[$key] = $key.'.'.$extension;
 
                     Dbafs::addResource($name);
+                }
+            }
+
+            Dbafs::updateFolderHashes($homeDir);
+
+            foreach ($files as $file) {
+                if (file_exists($file['tmp_name'])) {
+                    unlink($file['tmp_name']);
                 }
             }
         }
