@@ -100,7 +100,7 @@ class ConfigurationProvider
 
         $config['member'] = FrontendUser::getInstance();
 
-        $json = html_entity_decode($config['member']->jf_data);
+        $json = html_entity_decode(!empty($config['member']->jf_data) ? $config['member']->jf_data : '');
 
         if (!empty($json)) {
             try {
