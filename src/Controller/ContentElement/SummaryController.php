@@ -12,9 +12,11 @@ declare(strict_types=1);
 namespace Trilobit\JointformsBundle\Controller\ContentElement;
 
 use Contao\BackendTemplate;
+use Contao\Config;
 use Contao\ContentModel;
 use Contao\CoreBundle\Controller\ContentElement\AbstractContentElementController;
 use Contao\CoreBundle\ServiceAnnotation\ContentElement;
+use Contao\Date;
 use Contao\FormFieldModel;
 use Contao\FormModel;
 use Contao\System;
@@ -40,20 +42,13 @@ class SummaryController extends AbstractContentElementController
             return $template->getResponse();
         }
 
-        $template->data = $this->getContent($model->jf_environment);
-
-        return $template->getResponse();
-    }
-
-    protected function getContent($environment): array
-    {
-        $jf = new ConfigurationProvider($environment);
+        $jf = new ConfigurationProvider($model->jf_environment);
 
         if (empty($jf->config) || empty($jf->config['items'])) {
-            return [];
+            return $template->getResponse();
         }
 
-        $json = $jf->config['member']->jf_data;
+        $json = html_entity_decode(!empty($jf->config['member']->jf_data) ? $jf->config['member']->jf_data : '');
 
         if (!empty($json)) {
             $json = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
@@ -61,11 +56,31 @@ class SummaryController extends AbstractContentElementController
             $json = new \stdClass();
         }
 
+        $datimFormat = Config::get('datimFormat');
+
+        $template->jf_data = $this->getContent($jf, $json, $datimFormat);
+
+        $template->jf_summary_general = $GLOBALS['TL_LANG']['MSC']['jf_summary_general'];
+
+        $template->jf_last_modified_label = $GLOBALS['TL_LANG']['MSC']['jf_last_modified_label'];
+        $template->jf_last_modified = Date::parse($datimFormat, $json->last_modified);
+
+        $template->jf_complete_label = $GLOBALS['TL_LANG']['MSC']['jf_complete_label'];
+        $template->jf_complete = (!empty($jf->config['member']->jf_complete) ? '✓' : '✕');
+
+        $template->jf_complete_datim_label = $GLOBALS['TL_LANG']['MSC']['jf_complete_datim_label'];
+        $template->jf_complete_datim = (!empty($jf->config['member']->jf_complete) ? Date::parse($datimFormat, $jf->config['member']->jf_complete_datim) : '');
+
+        return $template->getResponse();
+    }
+
+    protected function getContent(ConfigurationProvider $jf, $json, $datimFormat): array
+    {
         $data = [];
         $step = 0;
 
         foreach ($jf->config['items'] as $item) {
-            if (empty($item['visible']) || 'tl_form' !== $item['type'] || true === $item['submit']) {
+            if (empty($item['visible']) || 'tl_form' !== $item['type']) { // || true === $item['submit']
                 continue;
             }
 
@@ -85,7 +100,11 @@ class SummaryController extends AbstractContentElementController
                     continue;
                 }
 
-                if (!\in_array($field['type'], ['text', 'password', 'textarea', 'select', 'radio', 'checkbox', 'upload', 'range', 'conditionalselect', 'select_plus'], true)) {
+                if (!empty($field['jf_visible_expression']) && !$jf->isElementVisible($field['jf_visible_expression'])) {
+                    continue;
+                }
+
+                if (!\in_array($field['type'], ['text', 'password', 'textarea', 'select', 'radio', 'checkbox', 'upload', 'range', 'conditionalselect', 'select_plus', 'textselect_plus', 'fileUpload_plus'], true)) {
                     continue;
                 }
 
@@ -97,6 +116,21 @@ class SummaryController extends AbstractContentElementController
                     'jf_label' => $field['jf_short_label'],
                 ];
             }
+
+            $items[] = [
+                'type' => 'jf_system',
+                'name' => 'jf_form_complete',
+                'value' => (!empty($value = $json->{$formKey}->jointforms_complete) ? '✓' : '✕'),
+                'label' => $GLOBALS['TL_LANG']['MSC']['jf_form_complete'],
+                'jf_label' => '',
+            ];
+            $items[] = [
+                'type' => 'jf_system',
+                'name' => 'jf_form_complete_datim',
+                'value' => (!empty($value = $json->{$formKey}->jointforms_complete_datim) ? Date::parse($datimFormat, $value) : null),
+                'label' => $GLOBALS['TL_LANG']['MSC']['jf_form_complete_datim'],
+                'jf_label' => '',
+            ];
 
             $data[] = [
                 'form' => [
