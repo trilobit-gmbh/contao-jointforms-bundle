@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Trilobit\JointformsBundle\Controller\ContentElement;
 
 use Contao\BackendTemplate;
-use Contao\ContentHeadline;
 use Contao\ContentModel;
 use Contao\CoreBundle\Controller\ContentElement\AbstractContentElementController;
 use Contao\CoreBundle\ServiceAnnotation\ContentElement;
@@ -41,7 +40,12 @@ class FormController extends AbstractContentElementController
 
             return $template->getResponse();
         }
+
         $template->data = $this->getContent($model->jf_environment);
+
+        $template->form = $template->data['form'];
+        $template->title = $template->data['title'];
+        $template->jf_title = $template->data['jf_title'];
 
         return $template->getResponse();
     }
@@ -75,25 +79,5 @@ class FormController extends AbstractContentElementController
             'jf_title' => $model->jf_title,
             'form' => $output->generate(),
         ];
-        $buffer = '';
-
-        $output = new ContentHeadline(new ContentModel());
-        $output->type = 'headline';
-        $output->headline = $model->title;
-        $output->hl = 'h2';
-
-        $buffer .= $output->generate();
-
-        $model->typePrefix = 'ce_';
-        $model->form = $model->id;
-
-        $class = class_exists(ModuleFormGenerator::class) ? '\Trilobit\FormvalidationBundle\ModuleFormGenerator' : '\Contao\Form';
-
-        $output = new $class($model);
-        $output->id = $model->id;
-
-        $buffer .= $output->generate();
-
-        return $buffer;
     }
 }

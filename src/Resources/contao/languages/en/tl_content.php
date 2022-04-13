@@ -17,3 +17,5 @@ $GLOBALS['TL_LANG']['tl_content']['jf_environment'][0] = 'Joint Forms environmen
 $GLOBALS['TL_LANG']['tl_content']['jf_environment'][1] = 'Please select the Joint Forms environment.';
 $GLOBALS['TL_LANG']['tl_content']['add_jf_logic'][0] = 'Add Joint Forms logic';
 $GLOBALS['TL_LANG']['tl_content']['add_jf_logic'][1] = 'Add Joint Forms logic to the content element.';
+$GLOBALS['TL_LANG']['tl_content']['jf_jumpTo'][0] = 'Redirect page';
+$GLOBALS['TL_LANG']['tl_content']['jf_jumpTo'][1] = 'Please choose the page to which visitors will be redirected if expression for visibility is true.';

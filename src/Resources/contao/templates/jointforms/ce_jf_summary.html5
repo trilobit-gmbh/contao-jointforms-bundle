@@ -2,18 +2,32 @@
 
 <?php $this->block('content'); ?>
 
-<?php foreach ($this->data as $step) { ?>
+<?php foreach ($this->jf_data as $step) { ?>
     <section class="summary step<?= $step['form']['step']; ?> <?= $step['form']['alias']; ?>">
         <h2><?= $step['form']['jf_title'] ?: $step['form']['title']; ?></h2>
         <table>
             <?php foreach ($step['fields'] as $field) { ?>
                 <tr>
-                    <th title="<?= $field['name']; ?> <?= $field['type']; ?>"><?= $field['jf_label'] ?: $field['label']; ?></th>
-                    <td><?= $field['value'] ?: '-/-'; ?></td>
+                    <th data-name="<?= $field['name']; ?>" data-type="<?= $field['type']; ?>"><?= 'jf_system' === $field['type'] ? '<small>' : ''; ?><?= $field['jf_label'] ?: $field['label']; ?><?= 'jf_system' === $field['type'] ? '</small>' : ''; ?></th>
+                    <td><?= 'jf_system' === $field['type'] ? '<small>' : ''; ?><?= $field['value'] ?: '-/-'; ?><?= 'jf_system' === $field['type'] ? '</small>' : ''; ?></td>
                 </tr>
             <?php } ?>
         </table>
     </section>
 <?php } ?>
+
+<br><br><hr><br><br>
+
+<section class="summary general">
+    <h2><?= $this->jf_summary_general; ?></h2>
+<table>
+    <?php foreach (['last_modified', 'complete', 'complete_datim'] as $field) { ?>
+        <tr>
+            <th><?= $this->{'jf_'.$field.'_label'}; ?></th>
+            <td><?= $this->{'jf_'.$field} ?: '-/-'; ?></td>
+        </tr>
+    <?php } ?>
+</table>
+</section>
 
 <?php $this->endblock(); ?>

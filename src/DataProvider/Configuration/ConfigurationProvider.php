@@ -100,7 +100,7 @@ class ConfigurationProvider
 
         $config['member'] = FrontendUser::getInstance();
 
-        $json = html_entity_decode(!empty($config['member']->jf_data) ? $config['member']->jf_data : '');
+        $json = (!empty($config['member']->jf_data) ? html_entity_decode($config['member']->jf_data) : '');
 
         if (!empty($json)) {
             try {
@@ -115,9 +115,14 @@ class ConfigurationProvider
         $config['app']->date = Date::parse('Y-m-d');
         $config['app']->time = Date::parse('H:i');
         $config['app']->tstamp = time();
+
+        $config['app']->jf_last_modified = $config['jointforms']->last_modified;
+        $config['app']->jf_complete = $config['member']->jf_complete;
+        $config['app']->jf_complete_datim = $config['member']->jf_complete_datim;
+
         $expression = str_replace('&#39;', '\'', $expression);
 
-        return (bool) $this->evaluateExpression(html_entity_decode($expression), $config);
+        return (bool) $this->evaluateExpression((!empty($expression) ? html_entity_decode($expression) : ''), $config);
     }
 
     /**
@@ -446,25 +451,6 @@ class ConfigurationProvider
         }
 
         return false;
-    }
-
-    /*
-     * todo: check usage
-     */
-    protected function isFormFieldVisible($formField): bool
-    {
-        $id = $formField->pid;
-        $expression = $formField->jf_visible_expression;
-
-        if (empty($id) || !$this->isInJointforms($id)) {
-            return true;
-        }
-
-        if ('' === $expression) {
-            return true;
-        }
-
-        return (bool) $this->evaluateExpression(html_entity_decode($expression), []);
     }
 }
 

@@ -39,12 +39,22 @@ $GLOBALS['TL_DCA']['tl_content']['fields']['jf_environment'] = [
     'sql' => "varchar(256) NOT NULL default ''",
 ];
 
+$GLOBALS['TL_DCA']['tl_content']['fields']['jf_jumpTo'] = [
+    'exclude' => true,
+    'inputType' => 'pageTree',
+    'foreignKey' => 'tl_page.title',
+    'eval' => ['mandatory' => true, 'fieldType' => 'radio', 'tl_class' => 'clr'],
+    'sql' => 'int(10) unsigned NOT NULL default 0',
+    'relation' => ['type' => 'hasOne', 'load' => 'lazy'],
+];
+
 $GLOBALS['TL_DCA']['tl_content']['palettes']['__selector__'][] = 'add_jf_logic';
 $GLOBALS['TL_DCA']['tl_content']['subpalettes']['add_jf_logic'] = 'jf_environment,jf_visible_expression';
 
-$GLOBALS['TL_DCA']['tl_content']['palettes']['jf_summary'] = '{type_legend},type,headline;{source_legend},jf_environment;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID;{invisible_legend:hide},invisible,start,stop';
-$GLOBALS['TL_DCA']['tl_content']['palettes']['jf_navigation'] = '{type_legend},type,headline;{source_legend},jf_environment;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID;{invisible_legend:hide},invisible,start,stop';
-$GLOBALS['TL_DCA']['tl_content']['palettes']['jf_form'] = '{type_legend},type,headline;{source_legend},jf_environment;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID;{invisible_legend:hide},invisible,start,stop';
+$GLOBALS['TL_DCA']['tl_content']['palettes']['jf_summary'] = '{type_legend},type,headline;{source_legend},jf_environment,jf_visible_expression;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID;{invisible_legend:hide},invisible,start,stop';
+$GLOBALS['TL_DCA']['tl_content']['palettes']['jf_redirect'] = '{type_legend},type,headline;{source_legend},jf_environment,jf_visible_expression,jf_jumpTo;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID;{invisible_legend:hide},invisible,start,stop';
+$GLOBALS['TL_DCA']['tl_content']['palettes']['jf_navigation'] = '{type_legend},type,headline;{source_legend},jf_environment,jf_visible_expression;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID;{invisible_legend:hide},invisible,start,stop';
+$GLOBALS['TL_DCA']['tl_content']['palettes']['jf_form'] = '{type_legend},type,headline;{source_legend},jf_environment,jf_visible_expression;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID;{invisible_legend:hide},invisible,start,stop';
 
 PaletteManipulator::create()
     ->addLegend('jf_legend', 'template_legend', PaletteManipulator::POSITION_BEFORE)
