@@ -99,11 +99,12 @@ class ProcessFormDataListener
             $json = new \stdClass();
         }
 
+        $json->last_modified = time();
+
         $submittedData['jointforms_complete'] = true;
+        $submittedData['jointforms_complete_datim'] = $json->last_modified;
 
         $json->{$formKey} = $submittedData;
-
-        $json->last_modified = time();
 
         if (!empty($item['submit'])) {
             $jf->config['member']->jf_complete = '1';
