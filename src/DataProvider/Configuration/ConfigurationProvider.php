@@ -100,7 +100,7 @@ class ConfigurationProvider
 
         $config['member'] = FrontendUser::getInstance();
 
-        $json = html_entity_decode(!empty($config['member']->jf_data) ? $config['member']->jf_data : '');
+        $json = (!empty($config['member']->jf_data) ? html_entity_decode($config['member']->jf_data) : '');
 
         if (!empty($json)) {
             try {
@@ -122,7 +122,7 @@ class ConfigurationProvider
 
         $expression = str_replace('&#39;', '\'', $expression);
 
-        return (bool) $this->evaluateExpression(html_entity_decode($expression), $config);
+        return (bool) $this->evaluateExpression((!empty($expression) ? html_entity_decode($expression) : ''), $config);
     }
 
     /**
