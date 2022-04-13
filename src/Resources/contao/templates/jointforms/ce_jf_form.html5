@@ -2,8 +2,8 @@
 
 <?php $this->block('content'); ?>
 
-<h2><?= $this->data['title']; ?></h2>
+<h2><?= $this->jf_title ?: $this->title; ?></h2>
 
-<?= $this->data['form']; ?>
+<?= $this->form; ?>
 
 <?php $this->endblock(); ?>
