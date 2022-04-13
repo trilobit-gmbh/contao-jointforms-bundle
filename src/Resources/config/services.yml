@@ -11,6 +11,7 @@ services:
     Trilobit\JointformsBundle\Controller\ContentElement\NavigationController: ~
     Trilobit\JointformsBundle\Controller\ContentElement\FormController: ~
     Trilobit\JointformsBundle\Controller\ContentElement\SummaryController: ~
+    Trilobit\JointformsBundle\Controller\ContentElement\RedirectController: ~
     Trilobit\JointformsBundle\EventListener\CompileFormFieldsListener: ~
     Trilobit\JointformsBundle\EventListener\LoadFormFieldListener: ~
     Trilobit\JointformsBundle\EventListener\ProcessFormDataListener: ~
