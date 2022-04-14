@@ -214,7 +214,7 @@ class ConfigurationProvider
         $this->initialized = true;
     }
 
-    protected function getConfig(string $environment = ''): array
+    public function getConfig(string $environment = ''): array
     {
         $config = System::getContainer()->getParameter('trilobit_jointforms');
 

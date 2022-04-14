@@ -20,7 +20,7 @@ $GLOBALS['TL_DCA']['tl_member']['fields']['jf_data'] = [
     'sorting' => true,
     'flag' => 1,
     'inputType' => 'textarea',
-    'eval' => ['readonly' => true],
+    'eval' => ['readonly' => true, 'tl_class' => 'clr'],
     'sql' => 'text null',
 ];
 
@@ -42,9 +42,20 @@ $GLOBALS['TL_DCA']['tl_member']['fields']['jf_complete_datim'] = [
     'sql' => "varchar(10) NOT NULL default ''",
 ];
 
+$GLOBALS['TL_DCA']['tl_member']['fields']['jf_last_modified'] = [
+    'exclude' => true,
+    'search' => true,
+    'sorting' => true,
+    'flag' => 6,
+    'inputType' => 'text',
+    'eval' => ['rgxp' => 'datim', 'datepicker' => true, 'tl_class' => 'clr w50 wizard'],
+    'sql' => "varchar(10) NOT NULL default ''",
+];
+
 PaletteManipulator::create()
     ->addLegend('jf_legend', 'account_legend', PaletteManipulator::POSITION_BEFORE)
     ->addField([
+        'jf_last_modified',
         'jf_data',
         'jf_complete',
     ], 'jf_legend', PaletteManipulator::POSITION_APPEND)
