@@ -116,7 +116,7 @@ class ConfigurationProvider
         $config['app']->time = Date::parse('H:i');
         $config['app']->tstamp = time();
 
-        $config['app']->jf_last_modified = $config['jointforms']->last_modified;
+        $config['app']->jf_last_modified = $config['jointforms']->jf_last_modified;
         $config['app']->jf_complete = $config['member']->jf_complete;
         $config['app']->jf_complete_datim = $config['member']->jf_complete_datim;
 

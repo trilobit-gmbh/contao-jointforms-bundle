@@ -112,6 +112,7 @@ class ProcessFormDataListener
         }
 
         $jf->config['member']->jf_data = json_encode($json, \JSON_THROW_ON_ERROR);
+        $jf->config['member']->jf_last_modified = $json->last_modified;
         $jf->config['member']->save();
 
         if (empty($item['submit'])) {
