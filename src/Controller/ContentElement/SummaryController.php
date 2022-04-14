@@ -63,7 +63,7 @@ class SummaryController extends AbstractContentElementController
         $template->jf_summary_general = $GLOBALS['TL_LANG']['MSC']['jf_summary_general'];
 
         $template->jf_last_modified_label = $GLOBALS['TL_LANG']['MSC']['jf_last_modified_label'];
-        $template->jf_last_modified = Date::parse($datimFormat, $json->last_modified);
+        $template->jf_last_modified = Date::parse($datimFormat, $jf->config['member']->jf_last_modified);
 
         $template->jf_complete_label = $GLOBALS['TL_LANG']['MSC']['jf_complete_label'];
         $template->jf_complete = (!empty($jf->config['member']->jf_complete) ? '✓' : '✕');
