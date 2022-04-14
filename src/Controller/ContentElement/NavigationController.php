@@ -54,9 +54,20 @@ class NavigationController extends AbstractContentElementController
 
         $data = [];
 
-        foreach ($jf->config['items'] as $item) {
+        $submitId = null;
+        $submitVisibility = true;
+
+        foreach ($jf->config['items'] as $key => $item) {
             if (empty($item['visible'])) {
                 continue;
+            }
+
+            if ('tl_form' === $item['type']) {
+                if ($item['submit']) {
+                    $submitId = $key;
+                } elseif ('complete' !== $item['state']) {
+                    $submitVisibility = false;
+                }
             }
 
             $output = new ContentHyperlink(new ContentModel());
@@ -65,7 +76,11 @@ class NavigationController extends AbstractContentElementController
             $output->linkTitle = $item['title'];
             $output->cssID = ['', $item['class']];
 
-            $data[] = !empty($item = $output->generate()) ? $item : '';
+            $data[$key] = !empty($item = $output->generate()) ? $item : '';
+        }
+
+        if (!$submitVisibility) {
+            unset($data[$submitId]);
         }
 
         return $data;

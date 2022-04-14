@@ -20,7 +20,7 @@ $GLOBALS['TL_DCA']['tl_member']['fields']['jf_data'] = [
     'sorting' => true,
     'flag' => 1,
     'inputType' => 'textarea',
-    'eval' => ['tl_class' => 'clr', 'readonly' => true],
+    'eval' => ['readonly' => true, 'tl_class' => 'clr'],
     'sql' => 'text null',
 ];
 

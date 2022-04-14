@@ -19,3 +19,7 @@ $GLOBALS['TL_LANG']['tl_member']['jf_complete'][0] = 'Completed';
 $GLOBALS['TL_LANG']['tl_member']['jf_complete'][1] = 'Complete submitted Jointforms.';
 $GLOBALS['TL_LANG']['tl_member']['jf_complete_datim'][0] = 'Date completed';
 $GLOBALS['TL_LANG']['tl_member']['jf_complete_datim'][1] = 'Date and time Jointforms was completed.';
+$GLOBALS['TL_LANG']['tl_member']['jf_last_modified'][0] = 'Last modified on';
+$GLOBALS['TL_LANG']['tl_member']['jf_last_modified'][1] = 'Date and time Jointforms was last modified.';
+
+$GLOBALS['TL_LANG']['tl_member']['jf_legend'] = 'Jointforms';

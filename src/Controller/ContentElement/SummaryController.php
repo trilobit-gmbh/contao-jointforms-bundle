@@ -48,7 +48,7 @@ class SummaryController extends AbstractContentElementController
             return $template->getResponse();
         }
 
-        $json = html_entity_decode(!empty($jf->config['member']->jf_data) ? $jf->config['member']->jf_data : '');
+        $json = (!empty($jf->config['member']->jf_data) ? html_entity_decode($jf->config['member']->jf_data) : '');
 
         if (!empty($json)) {
             $json = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
