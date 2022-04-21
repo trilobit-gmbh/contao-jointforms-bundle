@@ -15,9 +15,6 @@ $GLOBALS['TL_DCA']['tl_member']['palettes']['__selector__'][] = 'jf_complete';
 $GLOBALS['TL_DCA']['tl_member']['subpalettes']['jf_complete'] = 'jf_complete_datim';
 
 $GLOBALS['TL_DCA']['tl_member']['fields']['jf_data'] = [
-    'exclude' => true,
-    'search' => true,
-    'sorting' => true,
     'flag' => 1,
     'inputType' => 'textarea',
     'eval' => ['tl_class' => 'clr', 'readonly' => true],
@@ -26,7 +23,8 @@ $GLOBALS['TL_DCA']['tl_member']['fields']['jf_data'] = [
 
 $GLOBALS['TL_DCA']['tl_member']['fields']['jf_complete'] = [
     'exclude' => true,
-    'filter' => true,
+    'search' => true,
+    'sorting' => true,
     'inputType' => 'checkbox',
     'eval' => ['submitOnChange' => true],
     'sql' => "char(1) NOT NULL default ''",
