@@ -462,6 +462,14 @@ class App
             return 0;
         }
 
+        if (is_numeric($dateA)) {
+            $dateA = \Contao\Date::parse('Y-m-d', $dateA);
+        }
+
+        if (is_numeric($dateB)) {
+            $dateB = \Contao\Date::parse('Y-m-d', $dateB);
+        }
+
         $datimA = date_create($dateA);
         $datimB = date_create($dateB);
 
