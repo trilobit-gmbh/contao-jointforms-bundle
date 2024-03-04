@@ -80,7 +80,9 @@ class SummaryController extends AbstractContentElementController
         $step = 0;
 
         foreach ($jf->config['items'] as $item) {
-            if (empty($item['visible']) || 'tl_form' !== $item['type']) { // || true === $item['submit']
+            if (empty($item['visible'])
+                || 'tl_form' !== $item['type']
+            ) { // || true === $item['submit']
                 continue;
             }
 
@@ -100,7 +102,9 @@ class SummaryController extends AbstractContentElementController
                     continue;
                 }
 
-                if (!empty($field['jf_visible_expression']) && !$jf->isElementVisible($field['jf_visible_expression'])) {
+                if (!empty($field['jf_visible_expression'])
+                    && !$jf->isElementVisible($field['jf_visible_expression'])
+                ) {
                     continue;
                 }
 
@@ -124,6 +128,7 @@ class SummaryController extends AbstractContentElementController
                 'label' => $GLOBALS['TL_LANG']['MSC']['jf_form_complete'],
                 'jf_label' => '',
             ];
+
             $items[] = [
                 'type' => 'jf_system',
                 'name' => 'jf_form_complete_datim',

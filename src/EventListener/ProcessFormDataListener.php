@@ -83,7 +83,10 @@ class ProcessFormDataListener
             }
         }
 
-        $json = (!empty($jf->config['member']->jf_data) ? html_entity_decode($jf->config['member']->jf_data) : '');
+        $json = (!empty($jf->config['member']->jf_data)
+            ? html_entity_decode($jf->config['member']->jf_data)
+            : ''
+        );
 
         if (!empty($json)) {
             try {

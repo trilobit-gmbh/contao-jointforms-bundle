@@ -33,7 +33,9 @@ class RedirectController extends AbstractContentElementController
     {
         $request = System::getContainer()->get('request_stack')->getCurrentRequest();
 
-        if ($request && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
+        if ($request
+            && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)
+        ) {
             $template = new BackendTemplate('be_wildcard');
             $template->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_redirect'][0]).' ###';
 

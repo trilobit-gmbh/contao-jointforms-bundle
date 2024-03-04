@@ -29,7 +29,9 @@ class CompileFormFieldsListener extends ConfigurationProvider
         $jf = new ConfigurationProvider($form->jf_environment);
 
         foreach ($fields as $key => $field) {
-            if (!empty($field->jf_visible_expression) && !$jf->isElementVisible($field->jf_visible_expression)) {
+            if (!empty($field->jf_visible_expression)
+                && !$jf->isElementVisible($field->jf_visible_expression)
+            ) {
                 unset($fields[$key]);
             }
         }
