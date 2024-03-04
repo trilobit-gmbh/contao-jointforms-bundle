@@ -11,11 +11,11 @@
                     <th data-name="<?= $field['name']; ?>" data-type="<?= $field['type']; ?>"><?= 'jf_system' === $field['type'] ? '<small>' : ''; ?><?= $field['jf_label'] ?: $field['label']; ?><?= 'jf_system' === $field['type'] ? '</small>' : ''; ?></th>
                     <td>
                         <?= 'jf_system' === $field['type'] ? '<small>' : ''; ?>
-                        <?php if (is_array($field['value'])): ?>
+                        <?php if (is_array($field['value'])) { ?>
                             <?= implode(', ', $field['value']); ?>
-                        <?php else: ?>
+                        <?php } else { ?>
                             <?= $field['value'] ?: '✕'; ?>
-                        <?php endif; ?>
+                        <?php } ?>
                         <?= 'jf_system' === $field['type'] ? '</small>' : ''; ?>
                     </td>
                 </tr>
