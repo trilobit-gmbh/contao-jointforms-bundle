@@ -139,7 +139,7 @@ class SummaryController extends AbstractContentElementController
                     'key' => $formKey,
                     'alias' => $form->alias,
                     'title' => $item['title'],
-                    'jf_title' => $item['jf_title'],
+                    'jf_title' => $item['jf_title'] ?? '',
                 ],
                 'fields' => $items,
             ];
