@@ -7,7 +7,7 @@
  * @link       http://github.com/trilobit-gmbh/contao-jointforms-bundle
  */
 
-namespace Trilobit\JointformsBundle\DataProvider;
+namespace Trilobit\JointformsBundle\DataContainer;
 
 use Contao\DataContainer;
 
@@ -31,7 +31,6 @@ class Edit
                 .'document.querySelector(\'.json-tree\')'
             .');'
             .'</script>'
-            .'<style>.json-container{background:transparent}.json-container .line{word-break:break-all}.json-container .json-key{word-break:normal}</style>'
-        ;
+            .'<style>.json-container{background:transparent}.json-container .line{word-break:break-all}.json-container .json-key{word-break:normal}</style>';
     }
 }

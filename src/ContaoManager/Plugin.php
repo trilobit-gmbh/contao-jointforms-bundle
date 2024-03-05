@@ -23,9 +23,6 @@ use Trilobit\JointformsBundle\TrilobitJointformsBundle;
  */
 class Plugin implements BundlePluginInterface
 {
-    /**
-     * {@inheritDoc}
-     */
     public function getBundles(ParserInterface $parser)
     {
         return [

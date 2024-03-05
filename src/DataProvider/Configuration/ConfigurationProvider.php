@@ -129,10 +129,10 @@ class ConfigurationProvider
 
         $expression = str_replace('&#39;', '\'', $expression);
 
-        return (bool) $this->evaluateExpression((!empty($expression)
+        return (bool) $this->evaluateExpression(!empty($expression)
             ? html_entity_decode($expression)
             : ''
-        ), $config);
+            , $config);
     }
 
     /**
@@ -471,7 +471,7 @@ class ConfigurationProvider
                     try {
                         $item[$matches[1]] = $this->evaluateExpression($value, $item);
                     } catch (\Exception $e) {
-                        //var_dump($element[$key].': '.$e->getMessage().' (expression='.$element[$key].')');
+                        // var_dump($element[$key].': '.$e->getMessage().' (expression='.$element[$key].')');
                         $item[$matches[1]] = '';
                     }
                 }
@@ -504,11 +504,11 @@ class App
         }
 
         if (is_numeric($dateA)) {
-            $dateA = \Contao\Date::parse('Y-m-d', $dateA);
+            $dateA = Date::parse('Y-m-d', $dateA);
         }
 
         if (is_numeric($dateB)) {
-            $dateB = \Contao\Date::parse('Y-m-d', $dateB);
+            $dateB = Date::parse('Y-m-d', $dateB);
         }
 
         $datimA = date_create($dateA);
