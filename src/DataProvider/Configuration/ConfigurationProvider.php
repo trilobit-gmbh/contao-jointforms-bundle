@@ -351,10 +351,20 @@ class ConfigurationProvider
 
     protected function evaluateExpression($expression, $item)
     {
-        return $this->expression->evaluate(
-            $expression,
-            $this->getExpressionVars($item)
-        );
+        try {
+            return $this->expression->evaluate(
+                $expression,
+                $this->getExpressionVars($item)
+            );
+        } catch (\Exception $exception) {
+            if (preg_match('/^.*\?.*?\'(.*?)\'.*?\:.*?\'(.*?)\'$/', $expression, $matches)
+                && !empty(trim($matches[2]))
+            ) {
+                return trim($matches[2]);
+            }
+        }
+
+        return null;
     }
 
     protected function initItem($item): array
@@ -421,11 +431,7 @@ class ConfigurationProvider
         }
 
         if (!\array_key_exists('state', $item)) {
-            try {
-                $item['state'] = $this->evaluateExpression($item['state_expression'], $item);
-            } catch (\Exception $e) {
-                $item['state'] = 'todo';
-            }
+            $item['state'] = $this->evaluateExpression($item['state_expression'], $item);
         }
 
         if (!\array_key_exists('class', $item)) {
