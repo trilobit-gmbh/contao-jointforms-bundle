@@ -54,7 +54,9 @@ class FormController extends AbstractContentElementController
     {
         $jf = new ConfigurationProvider($environment);
 
-        if (empty($jf->config) || empty($jf->config['items'])) {
+        if (empty($jf->config)
+            || empty($jf->config['items'])
+        ) {
             return [];
         }
 

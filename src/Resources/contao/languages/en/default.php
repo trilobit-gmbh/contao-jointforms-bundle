@@ -22,7 +22,7 @@ $GLOBALS['TL_LANG']['CTE']['jf_redirect'][1] = 'Add redirect.';
 $GLOBALS['TL_LANG']['MSC']['jf_form_complete'] = 'Form completed';
 $GLOBALS['TL_LANG']['MSC']['jf_form_complete_datim'] = 'Form completed on';
 
-$GLOBALS['TL_LANG']['MSC']['jf_summary_general'] = 'Staus';
+$GLOBALS['TL_LANG']['MSC']['jf_summary_general'] = 'Status';
 $GLOBALS['TL_LANG']['MSC']['jf_last_modified_label'] = 'Last modified on';
 $GLOBALS['TL_LANG']['MSC']['jf_complete_label'] = 'All forms completed';
 $GLOBALS['TL_LANG']['MSC']['jf_complete_datim_label'] = 'All forms completed on';

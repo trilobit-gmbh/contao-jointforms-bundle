@@ -48,7 +48,9 @@ class NavigationController extends AbstractContentElementController
     {
         $jf = new ConfigurationProvider($environment);
 
-        if (empty($jf->config) || empty($jf->config['items'])) {
+        if (empty($jf->config)
+            || empty($jf->config['items'])
+        ) {
             return [];
         }
 
@@ -63,7 +65,7 @@ class NavigationController extends AbstractContentElementController
             }
 
             if ('tl_form' === $item['type']) {
-                if ($item['submit']) {
+                if (\array_key_exists('submit', $item)) {
                     $submitId = $key;
                 } elseif ('complete' !== $item['state']) {
                     $submitVisibility = false;
@@ -74,7 +76,11 @@ class NavigationController extends AbstractContentElementController
             $output->type = 'hyperlink';
             $output->url = $item['link'];
             $output->linkTitle = $item['title'];
-            $output->cssID = ['', $item['class']];
+
+            $output->cssID = ['', ''];
+            if (\array_key_exists('class', $item)) {
+                $output->cssID = ['', $item['class']];
+            }
 
             $data[$key] = !empty($item = $output->generate()) ? $item : '';
         }

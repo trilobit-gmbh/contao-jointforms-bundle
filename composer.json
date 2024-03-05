@@ -11,7 +11,7 @@
     ],
     "require": {
         "contao/core-bundle": "~4.9",
-        "php": "^7.3",
+        "php": "^7.4 || ^8.1",
         "ext-json": "*",
         "trilobit-gmbh/trilobit-datepicker": "^1.0"
     },
