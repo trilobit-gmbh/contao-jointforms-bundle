@@ -22,7 +22,9 @@ class ParseFrontendTemplateListener
 {
     public function __invoke(string $buffer, string $templateName, FrontendTemplate $template): string
     {
-        if (empty($template->jf_visible_expression) || empty($template->jf_environment)) {
+        if (empty($template->jf_visible_expression)
+            || empty($template->jf_environment)
+        ) {
             return $buffer;
         }
 

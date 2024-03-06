@@ -21,7 +21,6 @@ use Contao\FormFieldModel;
 use Contao\FormModel;
 use Contao\System;
 use Contao\Template;
-use Patchwork\Utf8;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
@@ -37,7 +36,7 @@ class SummaryController extends AbstractContentElementController
 
         if ($request && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
             $template = new BackendTemplate('be_wildcard');
-            $template->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_summary'][0]).' ###';
+            $template->wildcard = '### '.strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_summary'][0]).' ###';
 
             return $template->getResponse();
         }
@@ -80,7 +79,9 @@ class SummaryController extends AbstractContentElementController
         $step = 0;
 
         foreach ($jf->config['items'] as $item) {
-            if (empty($item['visible']) || 'tl_form' !== $item['type']) { // || true === $item['submit']
+            if (empty($item['visible'])
+                || 'tl_form' !== $item['type']
+            ) { // || true === $item['submit']
                 continue;
             }
 
@@ -100,7 +101,9 @@ class SummaryController extends AbstractContentElementController
                     continue;
                 }
 
-                if (!empty($field['jf_visible_expression']) && !$jf->isElementVisible($field['jf_visible_expression'])) {
+                if (!empty($field['jf_visible_expression'])
+                    && !$jf->isElementVisible($field['jf_visible_expression'])
+                ) {
                     continue;
                 }
 
@@ -124,6 +127,7 @@ class SummaryController extends AbstractContentElementController
                 'label' => $GLOBALS['TL_LANG']['MSC']['jf_form_complete'],
                 'jf_label' => '',
             ];
+
             $items[] = [
                 'type' => 'jf_system',
                 'name' => 'jf_form_complete_datim',
@@ -139,7 +143,7 @@ class SummaryController extends AbstractContentElementController
                     'key' => $formKey,
                     'alias' => $form->alias,
                     'title' => $item['title'],
-                    'jf_title' => $item['jf_title'],
+                    'jf_title' => $item['jf_title'] ?? '',
                 ],
                 'fields' => $items,
             ];

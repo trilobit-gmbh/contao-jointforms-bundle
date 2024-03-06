@@ -18,7 +18,6 @@ use Contao\CoreBundle\Controller\ContentElement\AbstractContentElementController
 use Contao\CoreBundle\ServiceAnnotation\ContentElement;
 use Contao\System;
 use Contao\Template;
-use Patchwork\Utf8;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
@@ -34,7 +33,7 @@ class NavigationController extends AbstractContentElementController
 
         if ($request && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
             $template = new BackendTemplate('be_wildcard');
-            $template->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_navigation'][0]).' ###';
+            $template->wildcard = '### '.strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_navigation'][0]).' ###';
 
             return $template->getResponse();
         }
@@ -48,7 +47,9 @@ class NavigationController extends AbstractContentElementController
     {
         $jf = new ConfigurationProvider($environment);
 
-        if (empty($jf->config) || empty($jf->config['items'])) {
+        if (empty($jf->config)
+            || empty($jf->config['items'])
+        ) {
             return [];
         }
 
@@ -63,7 +64,7 @@ class NavigationController extends AbstractContentElementController
             }
 
             if ('tl_form' === $item['type']) {
-                if ($item['submit']) {
+                if (\array_key_exists('submit', $item)) {
                     $submitId = $key;
                 } elseif ('complete' !== $item['state']) {
                     $submitVisibility = false;
@@ -74,7 +75,11 @@ class NavigationController extends AbstractContentElementController
             $output->type = 'hyperlink';
             $output->url = $item['link'];
             $output->linkTitle = $item['title'];
-            $output->cssID = ['', $item['class']];
+
+            $output->cssID = ['', ''];
+            if (\array_key_exists('class', $item)) {
+                $output->cssID = ['', $item['class']];
+            }
 
             $data[$key] = !empty($item = $output->generate()) ? $item : '';
         }

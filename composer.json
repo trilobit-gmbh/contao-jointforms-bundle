@@ -10,8 +10,8 @@
         }
     ],
     "require": {
-        "contao/core-bundle": "~4.9",
-        "php": "^7.3",
+        "contao/core-bundle": "~4.13",
+        "php": "^7.4 || ^8.1",
         "ext-json": "*",
         "trilobit-gmbh/trilobit-datepicker": "^1.0"
     },
@@ -40,7 +40,8 @@
     "config": {
         "allow-plugins": {
             "contao-components/installer": true,
-            "contao/manager-plugin": true
+            "contao/manager-plugin": true,
+            "php-http/discovery": true
         }
     }
 }

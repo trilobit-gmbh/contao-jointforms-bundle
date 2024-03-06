@@ -36,7 +36,9 @@ class ConfigurationProvider
         global $objPage;
         $this->page = $objPage;
 
-        if (null !== $this->tokenChecker && $this->tokenChecker->hasFrontendUser()) {
+        if (null !== $this->tokenChecker
+            && $this->tokenChecker->hasFrontendUser()
+        ) {
             $this->config = $this->getConfig($environment);
 
             if (!$this->initialized) {
@@ -90,7 +92,9 @@ class ConfigurationProvider
 
     public function isElementVisible($expression): bool
     {
-        if (null === $this->tokenChecker || !$this->tokenChecker->hasFrontendUser()) {
+        if (null === $this->tokenChecker
+            || !$this->tokenChecker->hasFrontendUser()
+        ) {
             return true;
         }
 
@@ -100,7 +104,10 @@ class ConfigurationProvider
 
         $config['member'] = FrontendUser::getInstance();
 
-        $json = (!empty($config['member']->jf_data) ? html_entity_decode($config['member']->jf_data) : '');
+        $json = (!empty($config['member']->jf_data)
+            ? html_entity_decode($config['member']->jf_data)
+            : ''
+        );
 
         if (!empty($json)) {
             try {
@@ -116,13 +123,16 @@ class ConfigurationProvider
         $config['app']->time = Date::parse('H:i');
         $config['app']->tstamp = time();
 
-        $config['app']->jf_last_modified = $config['jointforms']->jf_last_modified;
+        $config['app']->jf_last_modified = $config['member']->jf_last_modified;
         $config['app']->jf_complete = $config['member']->jf_complete;
         $config['app']->jf_complete_datim = $config['member']->jf_complete_datim;
 
         $expression = str_replace('&#39;', '\'', $expression);
 
-        return (bool) $this->evaluateExpression((!empty($expression) ? html_entity_decode($expression) : ''), $config);
+        return (bool) $this->evaluateExpression(!empty($expression)
+            ? html_entity_decode($expression)
+            : ''
+            , $config);
     }
 
     /**
@@ -132,7 +142,9 @@ class ConfigurationProvider
     {
         $this->expression = new ExpressionLanguage();
 
-        if (!\is_array($this->config['items'])) {
+        if (!\array_key_exists('items', $this->config)
+            || !\is_array($this->config['items'])
+        ) {
             return;
         }
 
@@ -165,7 +177,20 @@ class ConfigurationProvider
                     break;
 
                 case 'tl_form':
+                    if (empty($this->config['jointforms']->{'form'.$item['id']})) {
+                        $this->config['jointforms']->{'form'.$item['id']} = new \stdClass();
+                    }
+
+                    if (empty($this->config['jointforms']->{'form'.$item['id']}->jointforms_complete)) {
+                        $this->config['jointforms']->{'form'.$item['id']}->jointforms_complete = null;
+                    }
+
+                    if (empty($this->config['jointforms']->{'form'.$item['id']}->jointforms_complete_datim)) {
+                        $this->config['jointforms']->{'form'.$item['id']}->jointforms_complete_datim = null;
+                    }
+
                     $item = $this->prepareFormItem($item);
+
                     if (!empty($item['visible'])) {
                         $visibleForms[] = $item['id'];
                     }
@@ -185,7 +210,7 @@ class ConfigurationProvider
         $expression = implode(' && ', $visibleExpressions);
 
         foreach ($currentItems as $item) {
-            if ($item['submit']) {
+            if (\array_key_exists('submit', $item)) {
                 $item['visible_expression'] = $expression;
                 $item['visible'] = $this->evaluateExpression($expression, $item);
             }
@@ -204,7 +229,9 @@ class ConfigurationProvider
                 if ('tl_form' === $item['type']
                     && $this->currentForm === $item['id']
                 ) {
-                    $item['class'] .= ' active';
+                    if (\array_key_exists('class', $item)) {
+                        $item['class'] .= ' active';
+                    }
                     break;
                 }
             }
@@ -257,7 +284,9 @@ class ConfigurationProvider
 
     protected function getCurrentForm(): ?int
     {
-        if (!\is_array($this->config['items'])) {
+        if (!\array_key_exists('items', $this->config)
+            || !\is_array($this->config['items'])
+        ) {
             return null;
         }
 
@@ -322,10 +351,20 @@ class ConfigurationProvider
 
     protected function evaluateExpression($expression, $item)
     {
-        return $this->expression->evaluate(
-            $expression,
-            $this->getExpressionVars($item)
-        );
+        try {
+            return $this->expression->evaluate(
+                $expression,
+                $this->getExpressionVars($item)
+            );
+        } catch (\Exception $exception) {
+            if (preg_match('/^.*\?.*?\'(.*?)\'.*?\:.*?\'(.*?)\'$/', $expression, $matches)
+                && !empty(trim($matches[2]))
+            ) {
+                return trim($matches[2]);
+            }
+        }
+
+        return null;
     }
 
     protected function initItem($item): array
@@ -336,7 +375,7 @@ class ConfigurationProvider
 
         if (!\array_key_exists('visible', $item)
             && !\array_key_exists('visible_expression', $item)
-            && !$item['submit']
+            && !\array_key_exists('submit', $item)
         ) {
             $item['visible'] = true;
         }
@@ -358,11 +397,16 @@ class ConfigurationProvider
             $item['state'] = 'info';
         }
 
+        if (!\array_key_exists('class', $item)) {
+            $item['class'] = '';
+        }
+
         $item['class'] .= ' '.$item['state'];
 
         if ($this->page->id === $item['model']->id) {
             $item['class'] .= ' active page';
         }
+
         $item['class'] = trim($item['class']);
 
         return $item;
@@ -387,18 +431,21 @@ class ConfigurationProvider
         }
 
         if (!\array_key_exists('state', $item)) {
-            try {
-                $item['state'] = $this->evaluateExpression($item['state_expression'], $item);
-            } catch (\Exception $e) {
-                $item['state'] = 'todo';
-            }
+            $item['state'] = $this->evaluateExpression($item['state_expression'], $item);
+        }
+
+        if (!\array_key_exists('class', $item)) {
+            $item['class'] = '';
         }
 
         $item['class'] .= ' '.$item['state'];
 
-        if ($item['id'] === $this->currentForm) {
+        if (!empty($this->currentForm)
+            && $item['id'] === $this->currentForm
+        ) {
             $item['class'] .= ' active form';
         }
+
         $item['class'] = trim($item['class']);
 
         return $item;
@@ -430,7 +477,7 @@ class ConfigurationProvider
                     try {
                         $item[$matches[1]] = $this->evaluateExpression($value, $item);
                     } catch (\Exception $e) {
-                        //var_dump($element[$key].': '.$e->getMessage().' (expression='.$element[$key].')');
+                        // var_dump($element[$key].': '.$e->getMessage().' (expression='.$element[$key].')');
                         $item[$matches[1]] = '';
                     }
                 }
@@ -463,11 +510,11 @@ class App
         }
 
         if (is_numeric($dateA)) {
-            $dateA = \Contao\Date::parse('Y-m-d', $dateA);
+            $dateA = Date::parse('Y-m-d', $dateA);
         }
 
         if (is_numeric($dateB)) {
-            $dateB = \Contao\Date::parse('Y-m-d', $dateB);
+            $dateB = Date::parse('Y-m-d', $dateB);
         }
 
         $datimA = date_create($dateA);
