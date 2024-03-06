@@ -1,9 +1,9 @@
 Joint Forms Bundle
 ==================
 
-This is a bundle for [Contao CMS] (version 4.9.x).
+This is a bundle for [Contao CMS] (version 4.13.x).
 
-Dies ist ein Bundle für [Contao CMS] (Version 4.9.x).
+Dies ist ein Bundle für [Contao CMS] (Version 4.13.x).
 
 Mit diesem Bundle werden Formular-Abläufe und Abhängigkeiten definiert. Die Basis für die Speicherung der Daten ist die Contao Mitgliederverwaltung.
 Abhängigkeiten von Formularen untereinander sind möglich und können mit der Symfony ExpressionLanguage definiert werden.
@@ -19,7 +19,8 @@ Install the extension via composer: [trilobit-gmbh/contao-jointforms-bundle](htt
 Kompatibilität / Getestet / Compatibility / Tested
 --------------------------------------------------
 
-- Contao version ~4.9
+- Contao version ~4.13
+- PHP 8.1
 
 Configuration
 -------------
@@ -75,17 +76,8 @@ trilobit_jointforms:
 ```
 example configuration
 
-**todo**
-
-Doku
-* JS-Trigger Formular
-* Symfony ExpressionLanguage Beispiele
-* Screenshots
+**App vars and functions**
 * app.tools.dateDiff(dateA, dateB, 'days') `//days, y, m, d, h, i, s`
 * app.date `//Date::parse('Y-m-d');`
 * app.time `//Date::parse('H:i');`
 * app.tstamp `//time();`
-
-Kompatibilität
-* Contao 4.13
-* PHP 8
