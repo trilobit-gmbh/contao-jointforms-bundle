@@ -19,7 +19,6 @@ use Contao\Form;
 use Contao\FormModel;
 use Contao\System;
 use Contao\Template;
-use Patchwork\Utf8;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Trilobit\FormvalidationBundle\ModuleFormGenerator;
@@ -36,7 +35,7 @@ class FormController extends AbstractContentElementController
 
         if ($request && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)) {
             $template = new BackendTemplate('be_wildcard');
-            $template->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_form'][0]).' ###';
+            $template->wildcard = '### '.strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_form'][0]).' ###';
 
             return $template->getResponse();
         }

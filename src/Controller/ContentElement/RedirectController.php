@@ -19,7 +19,6 @@ use Contao\CoreBundle\ServiceAnnotation\ContentElement;
 use Contao\PageModel;
 use Contao\System;
 use Contao\Template;
-use Patchwork\Utf8;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
@@ -37,7 +36,7 @@ class RedirectController extends AbstractContentElementController
             && System::getContainer()->get('contao.routing.scope_matcher')->isBackendRequest($request)
         ) {
             $template = new BackendTemplate('be_wildcard');
-            $template->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_redirect'][0]).' ###';
+            $template->wildcard = '### '.strtoupper($GLOBALS['TL_LANG']['CTE']['jointforms'][0].' '.$GLOBALS['TL_LANG']['CTE']['jf_redirect'][0]).' ###';
 
             return $template->getResponse();
         }

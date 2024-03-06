@@ -16,6 +16,7 @@ use Contao\CoreBundle\ServiceAnnotation\Hook;
 use Contao\Dbafs;
 use Contao\FilesModel;
 use Contao\Form;
+use Contao\FormModel;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
 
 /**
@@ -23,7 +24,7 @@ use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
  *
  * @Hook("processFormData", priority=10)
  */
-class ProcessFormDataListener
+class ProcessFormDataListener extends ConfigurationProvider
 {
     /**
      * @throws \Safe\Exceptions\JsonException
@@ -61,7 +62,9 @@ class ProcessFormDataListener
                             unlink($jf->rootDir.'/'.$name);
                         }
 
-                        if ($jf->config['checkPdf']) {
+                        if (\array_key_exists('checkPdf', $jf->config)
+                        && $jf->config['checkPdf']
+                        ) {
                             system('pdf2ps "'.$file['tmp_name'].'" - | ps2pdf - "'.$jf->rootDir.'/'.$name.'"');
                         } elseif ($file['tmp_name'] !== $jf->rootDir.'/'.$name) {
                             copy($file['tmp_name'], $jf->rootDir.'/'.$name);
@@ -119,7 +122,14 @@ class ProcessFormDataListener
         $jf->config['member']->save();
 
         if (empty($item['submit'])) {
-            Controller::redirect($jf->getUrl($jf->page));
+            $tl_form = ConfigurationProvider::getCurrentForm();
+
+            $target = $jf->getUrl($jf->page);
+            if (null !== ($model = FormModel::findById($tl_form))) {
+                $target = $jf->getUrl($jf->page, $model->alias);
+            }
+
+            Controller::redirect($target);
         }
     }
 }

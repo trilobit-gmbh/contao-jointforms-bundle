@@ -10,7 +10,7 @@ declare(strict_types=1);
  */
 
 use Contao\CoreBundle\DataContainer\PaletteManipulator;
-use Trilobit\JointformsBundle\DataProvider\Edit;
+use Trilobit\JointformsBundle\DataContainer\Edit;
 
 $GLOBALS['TL_DCA']['tl_member']['palettes']['__selector__'][] = 'jf_complete';
 $GLOBALS['TL_DCA']['tl_member']['subpalettes']['jf_complete'] = 'jf_complete_datim';
