@@ -65,8 +65,6 @@ class FormController extends AbstractContentElementController
             return [];
         }
 
-        $jf->page->title = $model->jf_title ?: $model->title;
-
         $model->typePrefix = 'ce_';
         $model->form = $model->id;
 

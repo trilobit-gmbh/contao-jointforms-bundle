@@ -110,7 +110,10 @@ class ProcessFormDataListener extends ConfigurationProvider
         $submittedData['jointforms_complete'] = true;
         $submittedData['jointforms_complete_datim'] = $json->last_modified;
 
-        $json->{$formKey} = $submittedData;
+        $json->{$formKey} = new \stdClass();
+        foreach ($submittedData as $key => $value) {
+            $json->{$formKey}->{$key} = $value;
+        }
 
         if (!empty($item['submit'])) {
             $jf->config['member']->jf_complete = '1';
@@ -122,10 +125,35 @@ class ProcessFormDataListener extends ConfigurationProvider
         $jf->config['member']->save();
 
         if (empty($item['submit'])) {
-            $tl_form = ConfigurationProvider::getCurrentForm();
+            /*
+            //var_dump($json);
+
+            $currentForm = $jf->getCurrentForm();
+            if (null !== ($model = FormModel::findByIdOrAlias($currentForm))) {
+                var_dump([
+                    '1',
+                    $currentForm,
+                    $model->alias,
+                    $model->id
+                ]);
+            }
+
+            $nextForm = $jf->getNextForm();
+            if (null !== ($model = FormModel::findByIdOrAlias($nextForm))) {
+                var_dump([
+                    '2',
+                    $nextForm,
+                    $model->alias,
+                    $model->id
+                ]);
+            }
+            die();
+            */
+
+            $currentForm = $jf->getNextForm();
 
             $target = $jf->getUrl($jf->page);
-            if (null !== ($model = FormModel::findById($tl_form))) {
+            if (null !== ($model = FormModel::findById($currentForm))) {
                 $target = $jf->getUrl($jf->page, $model->alias);
             }
 

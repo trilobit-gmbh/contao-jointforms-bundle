@@ -46,7 +46,8 @@ class ConfigurationProvider
             }
         }
 
-        $this->currentForm = $this->getCurrentForm('__construct');
+        $this->currentForm = $this->getCurrentForm();
+        $this->currentStep = $this->getCurrentStep();
     }
 
     public function getUrl($page, $autoItem = ''): string
@@ -131,8 +132,7 @@ class ConfigurationProvider
 
         return (bool) $this->evaluateExpression(!empty($expression)
             ? html_entity_decode($expression)
-            : ''
-            , $config);
+            : '', $config);
     }
 
     /**
@@ -221,6 +221,7 @@ class ConfigurationProvider
         $this->config['items'] = $newItems;
 
         $this->currentForm = $this->getCurrentForm();
+        $this->currentStep = $this->getCurrentStep();
 
         if ($this->config['defaultPageIds']['tl_form']
             && $this->config['defaultPageIds']['tl_form'] === (int) $this->page->id
@@ -238,6 +239,10 @@ class ConfigurationProvider
             unset($item);
         }
 
+        $model = FormModel::findByIdOrAlias($this->currentForm);
+
+        $this->page->jf_title = $model->jf_title ?: $model->title;
+
         $this->initialized = true;
     }
 
@@ -245,8 +250,23 @@ class ConfigurationProvider
     {
         $config = System::getContainer()->getParameter('trilobit_jointforms');
 
-        if (empty($config)
-            || !\array_key_exists('environments', $config)
+        if (empty($config)) {
+            return [];
+        }
+
+        if (empty($environment)
+            && \array_key_exists('environments', $config)
+        ) {
+            global $objPage;
+            foreach ($config['environments'] as $key => $value) {
+                if ($objPage->id === $value['defaultPageIds']['tl_form']) {
+                    $environment = $key;
+                    break;
+                }
+            }
+        }
+
+        if (!\array_key_exists('environments', $config)
             || !\array_key_exists($environment, $config['environments'])
         ) {
             return [];
@@ -282,7 +302,7 @@ class ConfigurationProvider
         return $vars;
     }
 
-    protected function getCurrentForm(): ?int
+    protected function getCurrentForm($tl_form = null): ?int
     {
         if (!\array_key_exists('items', $this->config)
             || !\is_array($this->config['items'])
@@ -290,31 +310,39 @@ class ConfigurationProvider
             return null;
         }
 
-        $tl_form = Input::get('tl_form');
-
-        if ('next' === $tl_form) {
-            $tl_form = null;
+        if (null === $tl_form) {
+            $tl_form = Input::get('tl_form');
+            if (null === $tl_form) {
+                $tl_form = Input::get('auto_item');
+            }
         }
 
-        if (null !== $tl_form) {
-            if (null !== ($model = FormModel::findById($tl_form))) {
-                return (int) $model->id;
-            }
-
-            if (null !== ($model = FormModel::findByAlias($tl_form))) {
+        if (null !== $tl_form
+            && 'next' !== $tl_form
+        ) {
+            if (null !== ($model = FormModel::findByIdOrAlias($tl_form))) {
                 return (int) $model->id;
             }
         }
 
         // open form issues?
         foreach ($this->config['items'] as $item) {
-            if ('tl_form' === $item['type']
-                && 'todo' === $item['state']
-                && !empty($item['visible'])
-            ) {
-                Input::setGet('tl_form', $item['id']);
+            if ('tl_form' === $item['type']) {
+                try {
+                    $check = json_decode($this->config['member']->jf_data, false, 512, \JSON_THROW_ON_ERROR)->{'form'.$item['id']}->jointforms_complete;
+                } catch (\Exception $exception) {
+                    $check = false;
+                }
 
-                return $item['id'];
+                if ($check) {
+                    continue;
+                }
+
+                if ('todo' === $item['state']) {
+                    Input::setGet('tl_form', $item['id']);
+
+                    return $item['id'];
+                }
             }
         }
 
@@ -326,6 +354,27 @@ class ConfigurationProvider
                 Input::setGet('tl_form', $item['id']);
 
                 return $item['id'];
+            }
+        }
+
+        return null;
+    }
+
+    protected function getNextForm(): ?int
+    {
+        return $this->getCurrentForm('next');
+    }
+
+    protected function getCurrentStep(): ?int
+    {
+        $step = 0;
+        foreach ($this->config['items'] as $item) {
+            if ('tl_form' === $item['type']) {
+                ++$step;
+
+                if ($this->currentForm === $item['id']) {
+                    return $step;
+                }
             }
         }
 
@@ -363,8 +412,6 @@ class ConfigurationProvider
                 return trim($matches[2]);
             }
         }
-
-        return null;
     }
 
     protected function initItem($item): array
@@ -459,7 +506,8 @@ class ConfigurationProvider
 
         if (!\array_key_exists('link', $item)) {
             if ('tl_form' === $item['type']) {
-                $item['link'] = $this->getUrl($item['pagemodel'], $item['type'].'/'.(!empty($item['alias']) ? $item['alias'] : $item['id']));
+                // $item['link'] = $this->getUrl($item['pagemodel'], $item['type'].'/'.(!empty($item['alias']) ? $item['alias'] : $item['id']));
+                $item['link'] = $this->getUrl($item['pagemodel'], !empty($item['alias']) ? $item['alias'] : $item['id']);
             } else {
                 $item['link'] = $this->getUrl($item['pagemodel']);
             }
