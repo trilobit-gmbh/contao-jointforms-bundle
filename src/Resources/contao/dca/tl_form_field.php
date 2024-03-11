@@ -55,6 +55,16 @@ $GLOBALS['TL_DCA']['tl_form_field']['fields']['jf_onChange'] = [
     'eval' => ['tl_class' => 'w50'],
 ];
 
+$GLOBALS['TL_DCA']['tl_form_field']['fields']['noSummaryView'] = [
+    'exclude' => true,
+    'search' => true,
+    'sorting' => true,
+    'flag' => 1,
+    'inputType' => 'checkbox',
+    'sql' => "varchar(1) NOT NULL default ''",
+    'eval' => ['tl_class' => 'clr w50'],
+];
+
 PaletteManipulator::create()
     ->addField([
         'jf_short_label',
@@ -74,3 +84,10 @@ PaletteManipulator::create()
     ->applyToPalette('upload', 'tl_form_field')
     ->applyToPalette('range', 'tl_form_field')
 ;
+
+foreach (array_keys($GLOBALS['TL_FFL']) as $key) {
+    PaletteManipulator::create()
+        ->addField('noSummaryView', 'invisible_legend', PaletteManipulator::POSITION_APPEND)
+        ->applyToPalette($key, 'tl_form_field')
+    ;
+}
