@@ -156,8 +156,7 @@ class SummaryController extends AbstractContentElementController
                         $expression = 'jointforms.'
                             .$formKey.'.'
                             .$fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition']
-                            .' ? true : false'
-                        ;
+                            .' ? true : false';
 
                         if (!$jf->isElementVisible($expression)) {
                             continue;
@@ -190,7 +189,6 @@ class SummaryController extends AbstractContentElementController
                     }
 
                     $subItems[$multiFormGroup.'.0']['__group_count__'] = $i;
-
                 } else {
                     if (empty($json->{$formKey}->{$field['name']})) {
                         $json->{$formKey}->{$field['name']} = null;
@@ -209,26 +207,6 @@ class SummaryController extends AbstractContentElementController
                         $items[$field['sorting'].'.0']['text'] = $field['text'];
                     }
                 }
-
-                /*
-                foreach ($json->{$formKey} as $key => $value) {
-                    if (!empty($field['name'])
-                        && \preg_match('/^'.$field['name'].'/', $key)
-                    ) {
-                        \preg_match('/^'.$field['name'].'__(\d+)/', $key, $matches);
-                        var_dump($matches);
-
-                        $sorting = $field['sorting'];
-                        $items[] = [
-                            'type' => $field['type'],
-                            'name' => $field['name'],
-                            'value' => (!empty($value = $json->{$formKey}->{$key}) ? $value : null),
-                            'label' => $field['label'],
-                            'jf_label' => $field['jf_short_label'],
-                        ];
-                    }
-                }
-                */
             }
 
             if (!empty($subItems)) {
@@ -280,7 +258,6 @@ class SummaryController extends AbstractContentElementController
                 ],
                 'fields' => $items,
             ];
-
         }
 
         return $data;
