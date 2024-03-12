@@ -329,7 +329,7 @@ class ConfigurationProvider
         foreach ($this->config['items'] as $item) {
             if ('tl_form' === $item['type']) {
                 try {
-                    $check = json_decode($this->config['member']->jf_data, false, 512, \JSON_THROW_ON_ERROR)->{'form'.$item['id']}->jointforms_complete;
+                    $check = json_decode($this->config['member']->jf_data ?? '', false, 512, \JSON_THROW_ON_ERROR)->{'form'.$item['id']}->jointforms_complete;
                 } catch (\Exception $exception) {
                     $check = false;
                 }

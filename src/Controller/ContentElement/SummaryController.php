@@ -81,7 +81,7 @@ class SummaryController extends AbstractContentElementController
         foreach ($jf->config['items'] as $item) {
             if (empty($item['visible'])
                 || 'tl_form' !== $item['type']
-            ) { // || true === $item['submit']
+            ) {
                 continue;
             }
 
@@ -96,8 +96,21 @@ class SummaryController extends AbstractContentElementController
             )->fetchAll();
 
             $items = [];
+            $subItems = [];
+            $fieldsets = [];
+
+            $multiFormGroup = null;
+
             foreach ($fields as $key => $field) {
+                if (!\in_array($field['type'], ['explanation', 'fieldsetStart', 'fieldsetStop', 'text', 'password', 'textarea', 'select', 'radio', 'checkbox', 'upload', 'range', 'conditionalselect', 'select_plus', 'textselect_plus', 'fileUpload_plus'], true)) {
+                    continue;
+                }
+
                 if (!empty($field['invisible'])) {
+                    continue;
+                }
+
+                if (!empty($field['noSummaryView'])) {
                     continue;
                 }
 
@@ -107,17 +120,115 @@ class SummaryController extends AbstractContentElementController
                     continue;
                 }
 
-                if (!\in_array($field['type'], ['text', 'password', 'textarea', 'select', 'radio', 'checkbox', 'upload', 'range', 'conditionalselect', 'select_plus', 'textselect_plus', 'fileUpload_plus'], true)) {
+                if ('fieldsetStart' === $field['type']) {
+                    $fieldsets[] = $field;
+
+                    if (!empty($field['multi_form_group'])) {
+                        $multiFormGroup = $field['id'];
+
+                        $items[$field['id'].'.0'] = $field;
+                        $items[$field['id'].'.0']['type'] = 'multi_form_group';
+                        $items[$field['id'].'.0']['text'] = $field['label'];
+                        $items[$field['id'].'.0']['subItems'] = [];
+                    }
+
+                    if (!empty($field['isConditionalFormField'])
+                        && !empty($field['conditionalFormFieldCondition'])
+                    ) {
+                        $isConditionalFormField = $fieldsets[array_key_last($fieldsets)]['isConditionalFormField'] ?? '';
+                        $conditionalFormFieldCondition = $fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'] ?? '';
+
+                        if (!empty($isConditionalFormField)
+                            && !empty($conditionalFormFieldCondition)
+                        ) {
+                            $fieldsets[array_key_last($fieldsets)]['isConditionalFormField'] = true;
+                            $fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'] = $conditionalFormFieldCondition;
+                        }
+                    }
+
                     continue;
                 }
 
-                $items[] = [
-                    'type' => $field['type'],
-                    'name' => $field['name'],
-                    'value' => (!empty($value = $json->{$formKey}->{$field['name']}) ? $value : null),
-                    'label' => $field['label'],
-                    'jf_label' => $field['jf_short_label'],
-                ];
+                if (!empty($fieldsets)) {
+                    if (!empty($fieldsets[array_key_last($fieldsets)]['isConditionalFormField'])
+                        && !empty($fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'])
+                    ) {
+                        $expression = 'jointforms.'
+                            .$formKey.'.'
+                            .$fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition']
+                            .' ? true : false';
+
+                        if (!$jf->isElementVisible($expression)) {
+                            continue;
+                        }
+                    }
+                }
+
+                if ('fieldsetStop' === $field['type']) {
+                    array_pop($fieldsets);
+                    continue;
+                }
+
+                if (property_exists($json->{$formKey}, $field['name'].'__0')) {
+                    $i = 0;
+                    while (property_exists($json->{$formKey}, $field['name'].'__'.$i)) {
+                        $subItems[$multiFormGroup.'.0'][$field['name']][$i] = [
+                            'id' => $field['id'],
+                            'type' => $field['type'],
+                            'name' => $field['name'],
+                            'value' => (!empty($value = $json->{$formKey}->{$field['name'].'__'.$i}) ? $value : null),
+                            'label' => $field['label'],
+                            'jf_label' => $field['jf_short_label'],
+                        ];
+
+                        if ('explanation' === $field['type']) {
+                            $subItems[$multiFormGroup][$field['name']][$i]['text'] = $field['text'];
+                        }
+
+                        ++$i;
+                    }
+
+                    $subItems[$multiFormGroup.'.0']['__group_count__'] = $i;
+                } else {
+                    if (empty($json->{$formKey}->{$field['name']})) {
+                        $json->{$formKey}->{$field['name']} = null;
+                    }
+
+                    $items[$field['sorting'].'.0'] = [
+                        'id' => $field['id'],
+                        'type' => $field['type'],
+                        'name' => $field['name'],
+                        'value' => (!empty($value = $json->{$formKey}->{$field['name']}) ? $value : null),
+                        'label' => $field['label'],
+                        'jf_label' => $field['jf_short_label'],
+                    ];
+
+                    if ('explanation' === $field['type']) {
+                        $items[$field['sorting'].'.0']['text'] = $field['text'];
+                    }
+                }
+            }
+
+            if (!empty($subItems)) {
+                foreach ($subItems as $fieldset => $fields) {
+                    foreach (range(0, $fields['__group_count__'] - 1) as $key) {
+                        unset($fields['__group_count__']);
+
+                        $items[$fieldset]['subFields'][] = [
+                            'type' => 'multi_form_group explanation',
+                            'text' => str_replace(['##number##', '&#35;&#35;number&#35;&#35;'], (string) ($key + 1), $items[$fieldset]['text']),
+                        ];
+
+                        foreach ($fields as $field) {
+                            $items[$fieldset]['subFields'][] = $field[$key];
+                        }
+                    }
+
+                    $items[$fieldset]['subFields'][] = [
+                        'type' => 'multi_form_group explanation',
+                        'text' => '',
+                    ];
+                }
             }
 
             $items[] = [
