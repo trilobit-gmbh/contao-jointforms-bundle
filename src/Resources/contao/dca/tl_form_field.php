@@ -86,6 +86,10 @@ PaletteManipulator::create()
 ;
 
 foreach (array_keys($GLOBALS['TL_FFL']) as $key) {
+    if (!isset($GLOBALS['TL_DCA']['tl_form_field']['palettes'][$key])) {
+        continue;
+    }
+
     PaletteManipulator::create()
         ->addField('noSummaryView', 'invisible_legend', PaletteManipulator::POSITION_APPEND)
         ->applyToPalette($key, 'tl_form_field')
