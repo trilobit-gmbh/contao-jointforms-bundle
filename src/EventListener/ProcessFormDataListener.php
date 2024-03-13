@@ -73,7 +73,10 @@ class ProcessFormDataListener extends ConfigurationProvider
 
                     $submittedData[$key] = $key.'.'.$extension;
 
-                    Dbafs::addResource($name);
+                    try {
+                        Dbafs::addResource($name);
+                    } catch (\Exception $exception) {
+                    }
                 }
             }
 
