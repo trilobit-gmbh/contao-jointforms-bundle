@@ -128,31 +128,6 @@ class ProcessFormDataListener extends ConfigurationProvider
         $jf->config['member']->save();
 
         if (empty($item['submit'])) {
-            /*
-            //var_dump($json);
-
-            $currentForm = $jf->getCurrentForm();
-            if (null !== ($model = FormModel::findByIdOrAlias($currentForm))) {
-                var_dump([
-                    '1',
-                    $currentForm,
-                    $model->alias,
-                    $model->id
-                ]);
-            }
-
-            $nextForm = $jf->getNextForm();
-            if (null !== ($model = FormModel::findByIdOrAlias($nextForm))) {
-                var_dump([
-                    '2',
-                    $nextForm,
-                    $model->alias,
-                    $model->id
-                ]);
-            }
-            die();
-            */
-
             $currentForm = $jf->getNextForm();
 
             $target = $jf->getUrl($jf->page);
