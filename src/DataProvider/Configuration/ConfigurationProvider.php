@@ -226,10 +226,9 @@ class ConfigurationProvider
             ) {
                 $item['visible'] = $this->evaluateExpression($item['visible_expression'], $item);
             }
-            
+
             $newItems[] = $item;
         }
-
 
         $this->config['items'] = $newItems;
 
@@ -380,7 +379,7 @@ class ConfigurationProvider
 
     protected function getCurrentStep(): ?int
     {
-        if (!array_key_exists('items', $this->config)) {
+        if (!\array_key_exists('items', $this->config)) {
             return null;
         }
 
@@ -418,7 +417,7 @@ class ConfigurationProvider
 
     protected function evaluateExpression($expression, $item)
     {
-        if (1==2 && 71 === $item['id']) {
+        if (1 == 2 && 71 === $item['id']) {
             var_dump([
                 $item,
                 $expression,
@@ -565,7 +564,7 @@ class ConfigurationProvider
 
     protected function isInJointforms($id): bool
     {
-        if (!array_key_exists('items', $this->config)) {
+        if (!\array_key_exists('items', $this->config)) {
             return false;
         }
 
