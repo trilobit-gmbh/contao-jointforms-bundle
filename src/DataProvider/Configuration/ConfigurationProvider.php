@@ -417,18 +417,6 @@ class ConfigurationProvider
 
     protected function evaluateExpression($expression, $item)
     {
-        if (1 == 2 && 71 === $item['id']) {
-            var_dump([
-                $item,
-                $expression,
-                $this->getExpressionVars($item)['jointforms'],
-                $this->expression->evaluate(
-                    $expression,
-                    $this->getExpressionVars($item)
-                ),
-            ]);
-        }
-
         try {
             return $this->expression->evaluate(
                 $expression,
