@@ -80,6 +80,12 @@ class ConfigurationProvider
 
     public function getElementByTypeAndId($type, $id): array
     {
+        if (!\array_key_exists('items', $this->config)
+            || !\is_array($this->config['items'])
+        ) {
+            return [];
+        }
+
         foreach ($this->config['items'] as $item) {
             if ($item['type'] === $type
                 && $item['id'] === $id
@@ -182,7 +188,7 @@ class ConfigurationProvider
                     }
 
                     if (empty($this->config['jointforms']->{'form'.$item['id']}->jointforms_complete)) {
-                        $this->config['jointforms']->{'form'.$item['id']}->jointforms_complete = null;
+                        $this->config['jointforms']->{'form'.$item['id']}->jointforms_complete = false;
                     }
 
                     if (empty($this->config['jointforms']->{'form'.$item['id']}->jointforms_complete_datim)) {
@@ -213,6 +219,12 @@ class ConfigurationProvider
             if (\array_key_exists('submit', $item)) {
                 $item['visible_expression'] = $expression;
                 $item['visible'] = $this->evaluateExpression($expression, $item);
+            }
+
+            if (null === $item['visible']
+                && !empty($item['visible_expression'])
+            ) {
+                $item['visible'] = $this->evaluateExpression($item['visible_expression'], $item);
             }
 
             $newItems[] = $item;
@@ -367,7 +379,12 @@ class ConfigurationProvider
 
     protected function getCurrentStep(): ?int
     {
+        if (!\array_key_exists('items', $this->config)) {
+            return null;
+        }
+
         $step = 0;
+
         foreach ($this->config['items'] as $item) {
             if ('tl_form' === $item['type']) {
                 ++$step;
@@ -506,7 +523,6 @@ class ConfigurationProvider
 
         if (!\array_key_exists('link', $item)) {
             if ('tl_form' === $item['type']) {
-                // $item['link'] = $this->getUrl($item['pagemodel'], $item['type'].'/'.(!empty($item['alias']) ? $item['alias'] : $item['id']));
                 $item['link'] = $this->getUrl($item['pagemodel'], !empty($item['alias']) ? $item['alias'] : $item['id']);
             } else {
                 $item['link'] = $this->getUrl($item['pagemodel']);
@@ -525,7 +541,6 @@ class ConfigurationProvider
                     try {
                         $item[$matches[1]] = $this->evaluateExpression($value, $item);
                     } catch (\Exception $e) {
-                        // var_dump($element[$key].': '.$e->getMessage().' (expression='.$element[$key].')');
                         $item[$matches[1]] = '';
                     }
                 }
@@ -537,6 +552,10 @@ class ConfigurationProvider
 
     protected function isInJointforms($id): bool
     {
+        if (!\array_key_exists('items', $this->config)) {
+            return false;
+        }
+
         foreach ($this->config['items'] as $element) {
             if ($element['id'] === (int) $id
                 && 'tl_form' === $element['type']
