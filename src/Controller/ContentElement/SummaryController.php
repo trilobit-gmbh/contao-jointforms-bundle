@@ -120,6 +120,8 @@ class SummaryController extends AbstractContentElementController
                     continue;
                 }
 
+                $expression = '';
+
                 if ('fieldsetStart' === $field['type']) {
                     $fieldsets[] = $field;
 
@@ -149,6 +151,11 @@ class SummaryController extends AbstractContentElementController
                     continue;
                 }
 
+                if ('fieldsetStop' === $field['type']) {
+                    array_pop($fieldsets);
+                    continue;
+                }
+
                 if (!empty($fieldsets)) {
                     if (!empty($fieldsets[array_key_last($fieldsets)]['isConditionalFormField'])
                         && !empty($fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'])
@@ -163,12 +170,6 @@ class SummaryController extends AbstractContentElementController
                         }
                     }
                 }
-
-                if ('fieldsetStop' === $field['type']) {
-                    array_pop($fieldsets);
-                    continue;
-                }
-
                 if (property_exists($json->{$formKey}, $field['name'].'__0')) {
                     $i = 0;
                     while (property_exists($json->{$formKey}, $field['name'].'__'.$i)) {
