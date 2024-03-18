@@ -386,7 +386,7 @@ class ConfigurationProvider
         $step = 0;
 
         foreach ($this->config['items'] as $item) {
-            if ('tl_form' === $item['type']) {
+            if ('tl_form' === $item['type'] && $item['visible']) {
                 ++$step;
 
                 if ($this->currentForm === $item['id']) {
