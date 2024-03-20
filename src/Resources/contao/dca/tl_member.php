@@ -6,7 +6,6 @@ declare(strict_types=1);
  * @copyright  trilobit GmbH
  * @author     trilobit GmbH <https://github.com/trilobit-gmbh>
  * @license    LGPL-3.0-or-later
- * @link       http://github.com/trilobit-gmbh/contao-jointforms-bundle
  */
 
 use Contao\CoreBundle\DataContainer\PaletteManipulator;
@@ -18,8 +17,8 @@ $GLOBALS['TL_DCA']['tl_member']['subpalettes']['jf_complete'] = 'jf_complete_dat
 $GLOBALS['TL_DCA']['tl_member']['fields']['jf_data'] = [
     'flag' => 1,
     'inputType' => 'textarea',
-    'eval' => ['readonly' => true, 'tl_class' => 'clr'],
-    'input_field_callback' => [Edit::class, 'jsonView'],
+    // 'eval' => ['readonly' => true, 'tl_class' => 'clr'],
+    // 'input_field_callback' => [Edit::class, 'jsonView'],
     'sql' => 'text null',
 ];
 

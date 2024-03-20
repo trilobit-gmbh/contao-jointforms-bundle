@@ -6,7 +6,6 @@ declare(strict_types=1);
  * @copyright  trilobit GmbH
  * @author     trilobit GmbH <https://github.com/trilobit-gmbh>
  * @license    LGPL-3.0-or-later
- * @link       http://github.com/trilobit-gmbh/contao-jointforms-bundle
  */
 
 namespace Trilobit\JointformsBundle\Controller\ContentElement;
@@ -30,7 +29,7 @@ use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
  */
 class SummaryController extends AbstractContentElementController
 {
-    protected function getResponse(Template $template, ContentModel $model, Request $request): ?Response
+    protected function getResponse(Template $template, ContentModel $model, Request $request): Response
     {
         $request = System::getContainer()->get('request_stack')->getCurrentRequest();
 
