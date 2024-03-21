@@ -6,7 +6,6 @@ declare(strict_types=1);
  * @copyright  trilobit GmbH
  * @author     trilobit GmbH <https://github.com/trilobit-gmbh>
  * @license    LGPL-3.0-or-later
- * @link       http://github.com/trilobit-gmbh/contao-jointforms-bundle
  */
 
 namespace Trilobit\JointformsBundle\DependencyInjection;
@@ -16,24 +15,21 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * Generates the configuration tree builder.
-     *
-     * @return TreeBuilder The tree builder
-     */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('trilobit_jointforms');
+        $treeBuilder = new TreeBuilder('trilobit');
 
         if (method_exists($treeBuilder, 'getRootNode')) {
             $rootNode = $treeBuilder->getRootNode();
         } else {
-            $rootNode = $treeBuilder->root('trilobit_jointforms');
+            $rootNode = $treeBuilder->root('trilobit');
         }
 
         $rootNode
             ->children()
-                ->variableNode('environments')
+            ->variableNode('jointforms')
+            ->info('jointforms environments vars')
+            ->end()
             ->end()
         ;
 

@@ -6,7 +6,6 @@ declare(strict_types=1);
  * @copyright  trilobit GmbH
  * @author     trilobit GmbH <https://github.com/trilobit-gmbh>
  * @license    LGPL-3.0-or-later
- * @link       http://github.com/trilobit-gmbh/contao-jointforms-bundle
  */
 
 namespace Trilobit\JointformsBundle\DependencyInjection;
@@ -18,23 +17,22 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class JointformsExtension extends Extension
 {
-    /**
-     * @throws \Exception
-     */
-    public function load(array $configs, ContainerBuilder $container)
+    public function getAlias(): string
     {
-        $loader = new YamlFileLoader(
-            $container, new FileLocator(__DIR__.'/../Resources/config')
-        );
-        $loader->load('services.yml');
-
-        $configuration = new Configuration();
-        $config = $this->processConfiguration($configuration, $configs);
-        $container->setParameter($this->getAlias(), $config);
+        return 'trilobit';
     }
 
-    public function getAlias()
+    public function load(array $configs, ContainerBuilder $container): void
     {
-        return 'trilobit_jointforms';
+        $configuration = new Configuration();
+
+        $bundleConfig = $this->processConfiguration($configuration, $configs);
+
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.yml');
+
+        if (isset($bundleConfig['jointforms'])) {
+            $container->setParameter('trilobit.jointforms', $bundleConfig['jointforms']);
+        }
     }
 }
