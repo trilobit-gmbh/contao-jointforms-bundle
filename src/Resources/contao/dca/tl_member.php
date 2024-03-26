@@ -17,8 +17,8 @@ $GLOBALS['TL_DCA']['tl_member']['subpalettes']['jf_complete'] = 'jf_complete_dat
 $GLOBALS['TL_DCA']['tl_member']['fields']['jf_data'] = [
     'flag' => 1,
     'inputType' => 'textarea',
-    // 'eval' => ['readonly' => true, 'tl_class' => 'clr'],
-    // 'input_field_callback' => [Edit::class, 'jsonView'],
+    'eval' => ['useRawRequestData' => true, 'tl_class' => 'clr'],
+    'input_field_callback' => [Edit::class, 'jsonView'],
     'sql' => 'text null',
 ];
 
