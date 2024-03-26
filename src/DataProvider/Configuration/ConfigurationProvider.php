@@ -348,7 +348,11 @@ class ConfigurationProvider
         foreach ($this->config['items'] as $item) {
             if ('tl_form' === $item['type']) {
                 try {
-                    $check = json_decode($this->config['member']->jf_data ?? '', false, 512, \JSON_THROW_ON_ERROR)->{'form'.$item['id']}->jointforms_complete;
+                    $check = json_decode(str_replace(
+                        '&#34;',
+                        '"',
+                        $this->config['member']->jf_data
+                    ) ?? '', false, 512, \JSON_THROW_ON_ERROR)->{'form'.$item['id']}->jointforms_complete;
                 } catch (\Exception $exception) {
                     $check = false;
                 }
@@ -418,7 +422,7 @@ class ConfigurationProvider
         }
 
         $expression = 'jointforms.form'.$field->pid.' && jointforms.form'.$field->pid.'.'.$field->name.' ? jointforms.form'.$field->pid.'.'.$field->name.' : \'\'';
-
+        $item = $this->evaluateExpression($expression, []);
         return !empty($item = $this->evaluateExpression($expression, [])) ? $item : $field->value;
     }
 
