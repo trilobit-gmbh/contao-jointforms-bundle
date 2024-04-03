@@ -24,6 +24,17 @@ class JointformsExtension extends Extension
 
     public function load(array $configs, ContainerBuilder $container): void
     {
+        $bundleConfig = [];
+
+        foreach ($configs as $subConfig) {
+            $bundleConfig = array_merge($bundleConfig, $subConfig);
+        }
+
+        if (isset($bundleConfig['jointforms'])) {
+            $container->setParameter('trilobit.jointforms', $bundleConfig['jointforms']);
+        }
+
+        /*
         $configuration = new Configuration();
 
         $bundleConfig = $this->processConfiguration($configuration, $configs);
@@ -34,5 +45,6 @@ class JointformsExtension extends Extension
         if (isset($bundleConfig['jointforms'])) {
             $container->setParameter('trilobit.jointforms', $bundleConfig['jointforms']);
         }
+        */
     }
 }
