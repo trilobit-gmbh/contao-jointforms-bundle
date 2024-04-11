@@ -19,17 +19,17 @@ class JointformsExtension extends Extension
 {
     public function getAlias(): string
     {
-        return 'trilobit';
+        return 'trilobit_jointforms';
     }
 
     public function load(array $configs, ContainerBuilder $container): void
     {
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.yml');
+
         $configuration = new Configuration();
 
         $bundleConfig = $this->processConfiguration($configuration, $configs);
-
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.yml');
 
         if (isset($bundleConfig['jointforms'])) {
             $container->setParameter('trilobit.jointforms', $bundleConfig['jointforms']);

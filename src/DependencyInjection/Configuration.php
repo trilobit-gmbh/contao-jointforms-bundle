@@ -17,19 +17,19 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('trilobit');
+        $treeBuilder = new TreeBuilder('trilobit_jointforms');
 
         if (method_exists($treeBuilder, 'getRootNode')) {
             $rootNode = $treeBuilder->getRootNode();
         } else {
-            $rootNode = $treeBuilder->root('trilobit');
+            $rootNode = $treeBuilder->root('trilobit_jointforms');
         }
 
         $rootNode
             ->children()
-            ->variableNode('jointforms')
-            ->info('jointforms environments vars')
-            ->end()
+                ->variableNode('jointforms')
+                    ->info('jointforms environments vars')
+                ->end()
             ->end()
         ;
 

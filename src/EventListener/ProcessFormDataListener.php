@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Trilobit\JointformsBundle\EventListener;
 
+use Composer\EventDispatcher\EventDispatcher;
 use Contao\Controller;
 use Contao\CoreBundle\ServiceAnnotation\Hook;
 use Contao\Dbafs;
@@ -17,6 +18,8 @@ use Contao\FilesModel;
 use Contao\Form;
 use Contao\FormModel;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
+use Trilobit\JointformsBundle\Event\ProcessJointformsEvent;
+use Trilobit\JointformsBundle\Event\ProcessJointformsFormEvent;
 
 /**
  * Class ProcessFormDataListener.
@@ -117,9 +120,17 @@ class ProcessFormDataListener extends ConfigurationProvider
             $json->{$formKey}->{$key} = $value;
         }
 
+        $event = new ProcessJointformsFormEvent($jf);
+        $dispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
+        $dispatcher->dispatch($event, 'processJointformsForm');
+
         if (!empty($item['submit'])) {
             $jf->config['member']->jf_complete = '1';
             $jf->config['member']->jf_complete_datim = $json->last_modified;
+
+            $event = new ProcessJointformsEvent($jf);
+            $dispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
+            $dispatcher->dispatch($event, 'processJointforms');
         }
 
         $jf->config['member']->jf_data = json_encode($json, \JSON_THROW_ON_ERROR);
