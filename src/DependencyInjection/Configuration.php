@@ -22,7 +22,7 @@ class Configuration implements ConfigurationInterface
         if (method_exists($treeBuilder, 'getRootNode')) {
             $rootNode = $treeBuilder->getRootNode();
         } else {
-            $rootNode = $treeBuilder->root('trilobit');
+            $rootNode = $treeBuilder->root('trilobit_jointforms');
         }
 
         $rootNode
