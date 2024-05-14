@@ -351,7 +351,7 @@ class ConfigurationProvider
                     $check = json_decode(str_replace(
                         '&#34;',
                         '"',
-                        $this->config['member']->jf_data
+                        $this->config['member']->jf_data ?? ''
                     ) ?? '', false, 512, \JSON_THROW_ON_ERROR)->{'form'.$item['id']}->jointforms_complete;
                 } catch (\Exception $exception) {
                     $check = false;
