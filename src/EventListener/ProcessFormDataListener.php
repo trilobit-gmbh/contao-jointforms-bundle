@@ -49,7 +49,7 @@ class ProcessFormDataListener extends ConfigurationProvider
         }
 
         if (\is_array($files)
-            && '1' === $jf->config['member']->assignDir
+            && 1 === (int) $jf->config['member']->assignDir
             && !empty($homeDir = FilesModel::findByUuid($jf->config['member']->homeDir)->path) ? $homeDir : ''
         ) {
             foreach ($files as $key => $file) {
