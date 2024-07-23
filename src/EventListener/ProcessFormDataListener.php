@@ -49,15 +49,17 @@ class ProcessFormDataListener extends ConfigurationProvider
         }
 
         if (\is_array($files)
-            && 1 === (int) $jf->config['member']->assignDir
-            && !empty($homeDir = FilesModel::findByUuid($jf->config['member']->homeDir)->path) ? $homeDir : ''
+        && 1 === (int) $jf->config['member']->assignDir
+        && !empty($homeDir = FilesModel::findByUuid($jf->config['member']->homeDir)->path) ? $homeDir : ''
         ) {
             foreach ($files as $key => $file) {
-                if (0 === $file['error']) {
+                if (isset($file['error']) &&  0 === $file['error']) {
                     $parts = pathinfo($file['name']);
 
                     $extension = mb_convert_case($parts['extension'], \MB_CASE_LOWER);
-                    $name = $homeDir.'/'.$key.'.'.$extension;
+                    $filename = mb_convert_case($parts['filename'], \MB_CASE_LOWER);
+
+                    $name = $homeDir.'/'.$filename.'.'.$extension;
 
                     if (file_exists($file['tmp_name'])) {
                         if (file_exists($jf->rootDir.'/'.$name)) {
@@ -65,7 +67,7 @@ class ProcessFormDataListener extends ConfigurationProvider
                         }
 
                         if (\array_key_exists('checkPdf', $jf->config)
-                        && $jf->config['checkPdf']
+                            && $jf->config['checkPdf']
                         ) {
                             system('pdf2ps "'.$file['tmp_name'].'" - | ps2pdf - "'.$jf->rootDir.'/'.$name.'"');
                         } elseif ($file['tmp_name'] !== $jf->rootDir.'/'.$name) {
@@ -73,7 +75,7 @@ class ProcessFormDataListener extends ConfigurationProvider
                         }
                     }
 
-                    $submittedData[$key] = $key.'.'.$extension;
+                    $submittedData[$key] = $filename.'.'.$extension;
 
                     try {
                         Dbafs::addResource($name);
