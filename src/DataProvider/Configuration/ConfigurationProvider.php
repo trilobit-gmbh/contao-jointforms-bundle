@@ -45,6 +45,7 @@ class ConfigurationProvider
             }
         }
 
+        $this->environment = $environment;
         $this->currentForm = $this->getCurrentForm();
         $this->currentStep = $this->getCurrentStep();
     }
@@ -423,6 +424,7 @@ class ConfigurationProvider
 
         $expression = 'jointforms.form'.$field->pid.' && jointforms.form'.$field->pid.'.'.$field->name.' ? jointforms.form'.$field->pid.'.'.$field->name.' : \'\'';
         $item = $this->evaluateExpression($expression, []);
+
         return !empty($item = $this->evaluateExpression($expression, [])) ? $item : $field->value;
     }
 
