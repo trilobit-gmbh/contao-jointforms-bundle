@@ -16,6 +16,7 @@ Kompatibilität / Getestet / Compatibility / Tested
 --------------------------------------------------
 
 - Contao version ~4.13
+- Contao version ~5.0
 - PHP 8.1
 
 Configuration
