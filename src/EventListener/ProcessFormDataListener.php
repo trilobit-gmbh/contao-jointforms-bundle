@@ -10,16 +10,15 @@ declare(strict_types=1);
 
 namespace Trilobit\JointformsBundle\EventListener;
 
-use Composer\EventDispatcher\EventDispatcher;
 use Contao\Controller;
 use Contao\CoreBundle\ServiceAnnotation\Hook;
 use Contao\Dbafs;
 use Contao\FilesModel;
 use Contao\Form;
 use Contao\FormModel;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider;
-use Trilobit\JointformsBundle\Event\ProcessJointformsEvent;
-use Trilobit\JointformsBundle\Event\ProcessJointformsFormEvent;
+use Trilobit\JointformsBundle\Event\JointformsEvent;
 
 /**
  * Class ProcessFormDataListener.
@@ -32,6 +31,10 @@ class ProcessFormDataListener extends ConfigurationProvider
      * @throws \Safe\Exceptions\JsonException
      * @throws \JsonException
      */
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
+    {
+    }
+
     public function __invoke(array $submittedData, array $formData, ?array $files, array $labels, Form $form): void
     {
         $formId = (int) $formData['id'];
@@ -49,11 +52,11 @@ class ProcessFormDataListener extends ConfigurationProvider
         }
 
         if (\is_array($files)
-        && 1 === (int) $jf->config['member']->assignDir
-        && !empty($homeDir = FilesModel::findByUuid($jf->config['member']->homeDir)->path) ? $homeDir : ''
+            && 1 === (int) $jf->config['member']->assignDir
+            && !empty($homeDir = FilesModel::findByUuid($jf->config['member']->homeDir)->path) ? $homeDir : ''
         ) {
             foreach ($files as $key => $file) {
-                if (isset($file['error']) &&  0 === $file['error']) {
+                if (isset($file['error']) && 0 === $file['error']) {
                     $parts = pathinfo($file['name']);
 
                     $extension = mb_convert_case($parts['extension'], \MB_CASE_LOWER);
@@ -122,17 +125,12 @@ class ProcessFormDataListener extends ConfigurationProvider
             $json->{$formKey}->{$key} = $value;
         }
 
-        $event = new ProcessJointformsFormEvent($jf);
-        $dispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
-        $dispatcher->dispatch($event, 'processJointformsForm');
+        $event = new JointformsEvent($jf);
+        $this->eventDispatcher->dispatch($event, JointformsEvent::JF_PROCESS_FORM);
 
         if (!empty($item['submit'])) {
             $jf->config['member']->jf_complete = '1';
             $jf->config['member']->jf_complete_datim = $json->last_modified;
-
-            $event = new ProcessJointformsEvent($jf);
-            $dispatcher = new \Symfony\Component\EventDispatcher\EventDispatcher();
-            $dispatcher->dispatch($event, 'processJointforms');
         }
 
         $jf->config['member']->jf_data = json_encode($json, \JSON_THROW_ON_ERROR);
