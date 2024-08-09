@@ -41,9 +41,10 @@ class FormController extends AbstractContentElementController
 
         $template->data = $this->getContent($model->jf_environment);
 
-        $template->form = $template->data['form'];
         $template->title = $template->data['title'];
         $template->jf_title = $template->data['jf_title'];
+        $template->form = $template->data['form'];
+        $template->json = $template->data['json'];
 
         return $template->getResponse();
     }
@@ -56,6 +57,14 @@ class FormController extends AbstractContentElementController
             || empty($jf->config['items'])
         ) {
             return [];
+        }
+
+        $json = !empty($jf->config['member']->jf_data)
+            ? html_entity_decode($jf->config['member']->jf_data)
+            : '';
+
+        if (!empty($json)) {
+            $json = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
         }
 
         $model = FormModel::findByIdOrAlias($jf->currentForm);
@@ -76,6 +85,7 @@ class FormController extends AbstractContentElementController
             'title' => $model->title,
             'jf_title' => $model->jf_title,
             'form' => $output->generate(),
+            'json' => json_encode($json->{'form'.$jf->currentForm} ?? ''),
         ];
     }
 }
