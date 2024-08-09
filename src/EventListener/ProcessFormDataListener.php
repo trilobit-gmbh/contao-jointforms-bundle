@@ -126,9 +126,6 @@ class ProcessFormDataListener extends ConfigurationProvider
             $json->{$formKey}->{$key} = $value;
         }
 
-        $event = new JointformsEvent($jf);
-        $this->eventDispatcher->dispatch($event, JointformsEvent::JF_PROCESS_FORM);
-
         if (!empty($item['submit'])) {
             $jf->config['member']->jf_complete = '1';
             $jf->config['member']->jf_complete_datim = $json->last_modified;
