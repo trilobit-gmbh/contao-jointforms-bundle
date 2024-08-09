@@ -52,8 +52,8 @@ class ProcessFormDataListener extends ConfigurationProvider
         }
 
         if (\is_array($files)
-            && 1 === (int) $jf->config['member']->assignDir
-            && !empty($homeDir = FilesModel::findByUuid($jf->config['member']->homeDir)->path) ? $homeDir : ''
+        && 1 === (int) $jf->config['member']->assignDir
+        && !empty($homeDir = FilesModel::findByUuid($jf->config['member']->homeDir)->path) ? $homeDir : ''
         ) {
             foreach ($files as $key => $file) {
                 if (isset($file['error']) && 0 === $file['error']) {
@@ -102,20 +102,21 @@ class ProcessFormDataListener extends ConfigurationProvider
         );
 
         if (!empty($json)) {
-            try {
-                $config['jointforms'] = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
-            } catch (\Exception $e) {
-                $config['jointforms'] = new \stdClass();
-            }
-        }
-
-        if (!empty($json)) {
             $json = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
         } else {
             $json = new \stdClass();
         }
 
         $json->last_modified = time();
+
+        foreach ($_POST as $key => $value) {
+            if (preg_match('/^multi_form_size__\d+$/', $key)
+                && isset($_REQUEST[$key])
+            ) {
+                $submittedData[$key] = (int) $_REQUEST[$key];
+                continue;
+            }
+        }
 
         $submittedData['jointforms_complete'] = true;
         $submittedData['jointforms_complete_datim'] = $json->last_modified;
@@ -136,6 +137,9 @@ class ProcessFormDataListener extends ConfigurationProvider
         $jf->config['member']->jf_data = json_encode($json, \JSON_THROW_ON_ERROR);
         $jf->config['member']->jf_last_modified = $json->last_modified;
         $jf->config['member']->save();
+
+        $event = new JointformsEvent($jf);
+        $this->eventDispatcher->dispatch($event, JointformsEvent::JF_PROCESS_FORM);
 
         if (empty($item['submit'])) {
             $currentForm = $jf->getNextForm();
