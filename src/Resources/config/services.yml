@@ -16,6 +16,8 @@ services:
     Trilobit\JointformsBundle\EventListener\LoadFormFieldListener: ~
     Trilobit\JointformsBundle\EventListener\ParseFrontendTemplateListener: ~
 
+    Trilobit\JointformsBundle\Event\JointformsEvent: ~
+
     Trilobit\JointformsBundle\DataProvider\Configuration\ConfigurationProvider: ~
 
     Trilobit\JointformsBundle\EventListener\ProcessFormDataListener:
