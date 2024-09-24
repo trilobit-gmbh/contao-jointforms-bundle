@@ -49,12 +49,19 @@ class SummaryController extends AbstractContentElementController
         $json = (!empty($jf->config['member']->jf_data) ? html_entity_decode($jf->config['member']->jf_data) : '');
 
         if (!empty($json)) {
-            $json = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
+            try {
+                $json = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
+            } catch (\Exception $e) {
+                var_dump($e);
+                die();
+            }
         } else {
             $json = new \stdClass();
         }
 
         $datimFormat = Config::get('datimFormat');
+
+        $template->json = $json;
 
         $template->jf_data = $this->getContent($jf, $json, $datimFormat);
 
@@ -77,6 +84,8 @@ class SummaryController extends AbstractContentElementController
         $data = [];
         $step = 0;
 
+        $multiFormGroupField = [];
+
         foreach ($jf->config['items'] as $item) {
             if (empty($item['visible'])
                 || 'tl_form' !== $item['type']
@@ -85,6 +94,10 @@ class SummaryController extends AbstractContentElementController
             }
 
             $formKey = 'form'.$item['id'];
+
+            if (!isset($json->{$formKey})) {
+                continue;
+            }
 
             $form = FormModel::findByPk($item['id']);
             $fields = FormFieldModel::findByPid(
@@ -127,7 +140,19 @@ class SummaryController extends AbstractContentElementController
                     if (!empty($field['multi_form_group'])) {
                         $multiFormGroup = $field['id'];
 
-                        $items[$field['id'].'.0'] = $field;
+                        $fieldsets[array_key_last($fieldsets)]['isInMultiFormGroup'] = $multiFormGroup;
+
+                        $items[$field['id'].'.0'] = [
+                            'id' => $field['id'],
+                            'type' => 'multi_form_group',
+                            'name' => $field['name'],
+                            'value' => $field['value'],
+                            'label' => $field['label'],
+                            'jf_label' => '',
+                            'text' => $field['label'],
+                            'subItems' => [],
+                        ];
+                        //$field;
                         $items[$field['id'].'.0']['type'] = 'multi_form_group';
                         $items[$field['id'].'.0']['text'] = $field['label'];
                         $items[$field['id'].'.0']['subItems'] = [];
@@ -136,15 +161,8 @@ class SummaryController extends AbstractContentElementController
                     if (!empty($field['isConditionalFormField'])
                         && !empty($field['conditionalFormFieldCondition'])
                     ) {
-                        $isConditionalFormField = $fieldsets[array_key_last($fieldsets)]['isConditionalFormField'] ?? '';
-                        $conditionalFormFieldCondition = $fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'] ?? '';
-
-                        if (!empty($isConditionalFormField)
-                            && !empty($conditionalFormFieldCondition)
-                        ) {
-                            $fieldsets[array_key_last($fieldsets)]['isConditionalFormField'] = true;
-                            $fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'] = $conditionalFormFieldCondition;
-                        }
+                        $fieldsets[array_key_last($fieldsets)]['isInMultiFormGroup'] = $multiFormGroup;
+                        $fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'] = $field['conditionalFormFieldCondition'];
                     }
 
                     continue;
@@ -156,21 +174,51 @@ class SummaryController extends AbstractContentElementController
                 }
 
                 if (!empty($fieldsets)) {
-                    if (!empty($fieldsets[array_key_last($fieldsets)]['isConditionalFormField'])
+                    if (!empty($fieldsets[array_key_last($fieldsets)]['isInMultiFormGroup'])
                         && !empty($fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'])
                     ) {
+                        foreach (range(0, $json->{$formKey}->{'multi_form_size__'.$fieldsets[array_key_last($fieldsets)]['isInMultiFormGroup']} - 1) as $i) {
+                            preg_match(
+                                '/^(.*)(&&|\|\||!|==|!=|<|>|<=|>=)(.*)$/',
+                                $fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'],
+                                $conditionMatches
+                            );
+
+                            $expression = 'jointforms.'
+                                .$formKey.'.'
+                                .str_replace($conditionMatches[1], $conditionMatches[1].'__'.$i, $fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'])
+                                .' ? true : false';
+
+                            if ($jf->isElementVisible($expression)
+                                && property_exists($json->{$formKey}, $field['name'].'__'.$i)
+                            ) {
+                                $multiFormGroupField[$multiFormGroup][$conditionMatches[1]][$field['name']][$i] = [
+                                    'id' => $field['id'],
+                                    'type' => $field['type'],
+                                    'name' => $field['name'],
+                                    'value' => $json->{$formKey}->{$field['name'].'__'.$i},
+                                    'label' => $field['label'],
+                                    'jf_label' => $field['jf_short_label'],
+                                ];
+                            }
+                        }
+                    }
+
+                    if (!empty($fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'])) {
                         $expression = 'jointforms.'
-                            .$formKey.'.'
-                            .$fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition']
-                            .' ? true : false';
+                            . $formKey . '.'
+                            . $fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition']
+                            . ' ? true : false';
 
                         if (!$jf->isElementVisible($expression)) {
                             continue;
                         }
                     }
                 }
+
                 if (property_exists($json->{$formKey}, $field['name'].'__0')) {
                     $i = 0;
+
                     while (property_exists($json->{$formKey}, $field['name'].'__'.$i)) {
                         $subItems[$multiFormGroup.'.0'][$field['name']][$i] = [
                             'id' => $field['id'],
@@ -209,6 +257,25 @@ class SummaryController extends AbstractContentElementController
                 }
             }
 
+            if (isset($multiFormGroupField[$multiFormGroup])) {
+                foreach ($multiFormGroupField[$multiFormGroup] as $source => $value) {
+                    $subItems[$multiFormGroup.'.0'] = array_slice(
+                            $subItems[$multiFormGroup.'.0'],
+                            0,
+                            array_search($source, array_keys($subItems[$multiFormGroup.'.0'])) + 1,
+                            true
+                        )
+                        + $value
+                        + array_slice(
+                            $subItems[$multiFormGroup.'.0'],
+                            array_search($source, array_keys($subItems[$multiFormGroup.'.0'])) + 1,
+                            count($subItems[$multiFormGroup.'.0']) - 1,
+                            true
+                        )
+                    ;
+                }
+            }
+
             if (!empty($subItems)) {
                 foreach ($subItems as $fieldset => $fields) {
                     foreach (range(0, $fields['__group_count__'] - 1) as $key) {
@@ -220,7 +287,9 @@ class SummaryController extends AbstractContentElementController
                         ];
 
                         foreach ($fields as $field) {
-                            $items[$fieldset]['subFields'][] = $field[$key];
+                            if (isset($field[$key])) {
+                                $items[$fieldset]['subFields'][] = $field[$key];
+                            }
                         }
                     }
 
@@ -234,7 +303,7 @@ class SummaryController extends AbstractContentElementController
             $items[] = [
                 'type' => 'jf_system',
                 'name' => 'jf_form_complete',
-                'value' => (!empty($value = $json->{$formKey}->jointforms_complete) ? '✓' : '✕'),
+                'value' => (isset($json->{$formKey}->jointforms_complete) && !empty($value = $json->{$formKey}->jointforms_complete) ? '✓' : '✕'),
                 'label' => $GLOBALS['TL_LANG']['MSC']['jf_form_complete'],
                 'jf_label' => '',
             ];
@@ -242,7 +311,7 @@ class SummaryController extends AbstractContentElementController
             $items[] = [
                 'type' => 'jf_system',
                 'name' => 'jf_form_complete_datim',
-                'value' => (!empty($value = $json->{$formKey}->jointforms_complete_datim) ? Date::parse($datimFormat, $value) : null),
+                'value' => (isset($json->{$formKey}->jointforms_complete_datim) && !empty($value = $json->{$formKey}->jointforms_complete_datim) ? Date::parse($datimFormat, $value) : null),
                 'label' => $GLOBALS['TL_LANG']['MSC']['jf_form_complete_datim'],
                 'jf_label' => '',
             ];
@@ -259,6 +328,12 @@ class SummaryController extends AbstractContentElementController
                 'fields' => $items,
             ];
         }
+
+        #echo '<pre>';
+        #print_r($multiFormGroupField);
+        #print_r($data);
+        #echo '</pre>';
+        //die();
 
         return $data;
     }
