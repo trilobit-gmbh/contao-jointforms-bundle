@@ -114,6 +114,7 @@ class SummaryController extends AbstractContentElementController
             $multiFormGroup = null;
 
             foreach ($fields as $key => $field) {
+
                 if (!\in_array($field['type'], ['explanation', 'fieldsetStart', 'fieldsetStop', 'text', 'password', 'textarea', 'select', 'radio', 'checkbox', 'upload', 'range', 'conditionalselect', 'select_plus', 'textselect_plus', 'fileUpload_plus'], true)) {
                     continue;
                 }
@@ -216,7 +217,7 @@ class SummaryController extends AbstractContentElementController
                     }
                 }
 
-                if (property_exists($json->{$formKey}, $field['name'].'__0')) {
+                if (!empty($json->{$formKey}) && property_exists($json->{$formKey}, $field['name'].'__0')) {
                     $i = 0;
 
                     while (property_exists($json->{$formKey}, $field['name'].'__'.$i)) {
@@ -238,6 +239,10 @@ class SummaryController extends AbstractContentElementController
 
                     $subItems[$multiFormGroup.'.0']['__group_count__'] = $i;
                 } else {
+                    if (empty($json->{$formKey})) {
+                        $json->{$formKey} = new \stdClass();
+                    }
+
                     if (empty($json->{$formKey}->{$field['name']})) {
                         $json->{$formKey}->{$field['name']} = null;
                     }
