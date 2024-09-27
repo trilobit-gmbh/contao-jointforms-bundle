@@ -86,6 +86,7 @@ class FormController extends AbstractContentElementController
             'jf_title' => $model->jf_title,
             'form' => $output->generate(),
             'json' => json_encode($json->{'form'.$jf->currentForm} ?? ''),
+            'member' => $jf->config['member'],
         ];
     }
 }
