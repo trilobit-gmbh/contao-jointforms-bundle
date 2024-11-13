@@ -162,27 +162,21 @@ class ConfigurationProvider
             return;
         }
 
-        if (!\array_key_exists('member', $this->config)) {
-            $this->config['member'] = FrontendUser::getInstance();
-            $this->config['jointforms'] = new \stdClass();
+        $this->config['member'] = FrontendUser::getInstance();
+        $this->config['jointforms'] = new \stdClass();
 
-            if (!empty($this->config['member']->jf_data)) {
-                try {
-                    $this->config['jointforms'] = json_decode($this->config['member']->jf_data, false, 512, \JSON_THROW_ON_ERROR);
-                } catch (\Exception $e) {
-                    $this->config['jointforms'] = new \stdClass();
-                }
-            }
+        try {
+            $this->config['jointforms'] = json_decode($this->config['member']->jf_data, false, 512, \JSON_THROW_ON_ERROR);
+        } catch (\Exception $e) {
+            $this->config['jointforms'] = new \stdClass();
         }
 
         $this->config['jointforms']->time = time();
 
-        $currentItems = [];
-        $newItems = [];
-        $visibleForms = [];
-        $visibleExpressions = [];
+        $visibleFormsForSubmit = [];
+        $visibleExpressionsForSubmit = [];
 
-        foreach ($this->config['items'] as $item) {
+        foreach ($this->config['items'] as &$item) {
             $item = $this->initItem($item);
 
             switch ($item['type']) {
@@ -205,40 +199,33 @@ class ConfigurationProvider
 
                     $item = $this->prepareFormItem($item);
 
-                    if (!empty($item['visible'])) {
-                        $visibleForms[] = $item['id'];
+                    if (\array_key_exists('visible', $item) && $item['visible']) {
+                        $visibleFormsForSubmit[] = $item['id'];
                     }
+
                     break;
 
                 default:
                     break;
             }
 
-            $currentItems[] = $this->finalizeItem($item);
+            $item = $this->finalizeItem($item);
+        }
+        unset($item);
+
+        foreach ($visibleFormsForSubmit as $id) {
+            $visibleExpressionsForSubmit[] = 'jointforms.form'.$id.' && jointforms.form'.$id.'.jointforms_complete';
         }
 
-        foreach ($visibleForms as $id) {
-            $visibleExpressions[] = 'jointforms.form'.$id.' && jointforms.form'.$id.'.jointforms_complete';
-        }
+        $expressionForSubmit = implode(' && ', $visibleExpressionsForSubmit);
 
-        $expression = implode(' && ', $visibleExpressions);
-
-        foreach ($currentItems as $item) {
+        foreach ($this->config['items'] as &$item) {
             if (\array_key_exists('submit', $item)) {
-                $item['visible_expression'] = $expression;
-                $item['visible'] = $this->evaluateExpression($expression, $item);
+                $item['visible_expression'] = $expressionForSubmit;
+                $item['visible'] = $this->evaluateExpression($expressionForSubmit, $item);
             }
-
-            if (null === $item['visible']
-                && !empty($item['visible_expression'])
-            ) {
-                $item['visible'] = $this->evaluateExpression($item['visible_expression'], $item);
-            }
-
-            $newItems[] = $item;
         }
-
-        $this->config['items'] = $newItems;
+        unset($item);
 
         $this->currentForm = $this->getCurrentForm();
         $this->currentStep = $this->getCurrentStep();
@@ -256,12 +243,13 @@ class ConfigurationProvider
                     break;
                 }
             }
+
             unset($item);
+
+            $model = FormModel::findByIdOrAlias($this->currentForm);
+
+            $this->page->jf_title = $model->jf_title ?: $model->title;
         }
-
-        $model = FormModel::findByIdOrAlias($this->currentForm);
-
-        $this->page->jf_title = $model->jf_title ?: $model->title;
 
         $this->initialized = true;
     }
@@ -347,33 +335,40 @@ class ConfigurationProvider
 
         // open form issues?
         foreach ($this->config['items'] as $item) {
-            if ('tl_form' === $item['type']) {
-                try {
-                    $check = json_decode(str_replace(
-                        '&#34;',
-                        '"',
-                        $this->config['member']->jf_data ?? ''
-                    ) ?? '', false, 512, \JSON_THROW_ON_ERROR)->{'form'.$item['id']}->jointforms_complete;
-                } catch (\Exception $exception) {
-                    $check = false;
-                }
+            if ('tl_form' !== $item['type']) {
+                continue;
+            }
 
-                if ($check) {
-                    continue;
-                }
+            /* todo: check if still needed
+            try {
+                $check = json_decode(str_replace(
+                    '&#34;',
+                    '"',
+                    $this->config['member']->jf_data ?? ''
+                ) ?? '', false, 512, \JSON_THROW_ON_ERROR)->{'form'.$item['id']}->jointforms_complete;
+            } catch (\Exception $exception) {
+                $check = false;
+            }
 
-                if ('todo' === $item['state']) {
-                    Input::setGet('tl_form', $item['id']);
+            if ($check) {
+                continue;
+            }
+            */
 
-                    return $item['id'];
-                }
+            if ('todo' === $item['state']
+                && Environment::get('request') !== $item['link']
+                && $this->evaluateExpression($item['visible_expression'], $item)
+            ) {
+                Input::setGet('tl_form', $item['id']);
+
+                return $item['id'];
             }
         }
 
         // all done? first visible form
         foreach ($this->config['items'] as $item) {
             if ('tl_form' === $item['type']
-                && !empty($item['visible'])
+                && $this->evaluateExpression($item['visible_expression'], $item)
             ) {
                 Input::setGet('tl_form', $item['id']);
 
@@ -423,7 +418,6 @@ class ConfigurationProvider
         }
 
         $expression = 'jointforms.form'.$field->pid.' && jointforms.form'.$field->pid.'.'.$field->name.' ? jointforms.form'.$field->pid.'.'.$field->name.' : \'\'';
-        $item = $this->evaluateExpression($expression, []);
 
         return !empty($item = $this->evaluateExpression($expression, [])) ? $item : $field->value;
     }
@@ -503,12 +497,8 @@ class ConfigurationProvider
             $item['alias'] = $item['model']->alias;
         }
 
-        if (!\array_key_exists('state_expression', $item)) {
-            $item['state_expression'] = 'jointforms.form'.$item['id'].".jointforms_complete ? 'complete' : 'todo'";
-        }
-
         if (!\array_key_exists('state', $item)) {
-            $item['state'] = $this->evaluateExpression($item['state_expression'], $item);
+            $item['state'] = $this->evaluateExpression('jointforms.form'.$item['id'].".jointforms_complete ? 'complete' : 'todo'", $item);
         }
 
         if (!\array_key_exists('class', $item)) {
@@ -524,6 +514,12 @@ class ConfigurationProvider
         }
 
         $item['class'] = trim($item['class']);
+
+        if (\array_key_exists('visible_expression', $item)) {
+            $item['visible'] = $this->evaluateExpression($item['visible_expression'], $item) ?? true;
+        } else {
+            $item['visible'] = true;
+        }
 
         return $item;
     }
