@@ -40,8 +40,6 @@ class SummaryController extends AbstractContentElementController
             return $template->getResponse();
         }
 
-        $template->error = null;
-
         $jf = new ConfigurationProvider($model->jf_environment);
 
         if (empty($jf->config) || empty($jf->config['items'])) {
@@ -49,6 +47,8 @@ class SummaryController extends AbstractContentElementController
         }
 
         $json = (!empty($jf->config['member']->jf_data) ? html_entity_decode($jf->config['member']->jf_data) : '');
+
+        $template->error = [];
 
         if (!empty($json)) {
             try {
@@ -68,9 +68,10 @@ class SummaryController extends AbstractContentElementController
 
         $template->json = $json;
 
-        $template->jf_data = null !== $template->error
+        $template->jf_data = (null !== $template->error
             ? $this->getContent($jf, $json, $datimFormat)
-            : [];
+            : []
+        );
 
         $template->jf_summary_general = $GLOBALS['TL_LANG']['MSC']['jf_summary_general'];
 
@@ -271,11 +272,11 @@ class SummaryController extends AbstractContentElementController
             if (isset($multiFormGroupField[$multiFormGroup])) {
                 foreach ($multiFormGroupField[$multiFormGroup] as $source => $value) {
                     $subItems[$multiFormGroup.'.0'] = \array_slice(
-                        $subItems[$multiFormGroup.'.0'],
-                        0,
-                        array_search($source, array_keys($subItems[$multiFormGroup.'.0']), true) + 1,
-                        true
-                    )
+                            $subItems[$multiFormGroup.'.0'],
+                            0,
+                            array_search($source, array_keys($subItems[$multiFormGroup.'.0']), true) + 1,
+                            true
+                        )
                         + $value
                         + \array_slice(
                             $subItems[$multiFormGroup.'.0'],

@@ -199,7 +199,7 @@ class ConfigurationProvider
 
                     $item = $this->prepareFormItem($item);
 
-                    if (\array_key_exists('visible', $item) && $item['visible']) {
+                    if (\array_key_exists('visible', $item) && $item['visible'] && !\array_key_exists('submit', $item)) {
                         $visibleFormsForSubmit[] = $item['id'];
                     }
 
@@ -368,7 +368,7 @@ class ConfigurationProvider
         // all done? first visible form
         foreach ($this->config['items'] as $item) {
             if ('tl_form' === $item['type']
-                && $this->evaluateExpression($item['visible_expression'], $item)
+                && $this->evaluateExpression($item['visible_expression'] ?? '', $item)
             ) {
                 Input::setGet('tl_form', $item['id']);
 
