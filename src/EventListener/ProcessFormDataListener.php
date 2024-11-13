@@ -52,8 +52,8 @@ class ProcessFormDataListener extends ConfigurationProvider
         }
 
         if (\is_array($files)
-        && 1 === (int) $jf->config['member']->assignDir
-        && !empty($homeDir = FilesModel::findByUuid($jf->config['member']->homeDir)->path) ? $homeDir : ''
+            && 1 === (int) $jf->config['member']->assignDir
+            && !empty($homeDir = FilesModel::findByUuid($jf->config['member']->homeDir)->path) ? $homeDir : ''
         ) {
             foreach ($files as $key => $file) {
                 if (isset($file['error']) && 0 === $file['error']) {
@@ -124,6 +124,7 @@ class ProcessFormDataListener extends ConfigurationProvider
         $json->{$formKey} = new \stdClass();
         foreach ($submittedData as $key => $value) {
             $json->{$formKey}->{$key} = $value;
+            $jf->config['jointforms']->{$formKey}->{$key} = $value;
         }
 
         if (!empty($item['submit'])) {
@@ -139,10 +140,11 @@ class ProcessFormDataListener extends ConfigurationProvider
         $this->eventDispatcher->dispatch($event, JointformsEvent::JF_PROCESS_FORM);
 
         if (empty($item['submit'])) {
-            $currentForm = $jf->getNextForm();
+            $nextForm = $jf->getNextForm();
+            $model = FormModel::findById($nextForm);
 
             $target = $jf->getUrl($jf->page);
-            if (null !== ($model = FormModel::findById($currentForm))) {
+            if (null !== ($model = FormModel::findById($nextForm))) {
                 $target = $jf->getUrl($jf->page, $model->alias);
             }
 
