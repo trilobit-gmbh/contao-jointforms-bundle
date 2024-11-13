@@ -40,6 +40,8 @@ class SummaryController extends AbstractContentElementController
             return $template->getResponse();
         }
 
+        $template->error = null;
+
         $jf = new ConfigurationProvider($model->jf_environment);
 
         if (empty($jf->config) || empty($jf->config['items'])) {
@@ -52,8 +54,11 @@ class SummaryController extends AbstractContentElementController
             try {
                 $json = json_decode($json, false, 512, \JSON_THROW_ON_ERROR);
             } catch (\Exception $e) {
-                var_dump($e);
-                die();
+                $template->error = [
+                    'code' => $e->getCode(),
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTrace(),
+                ];
             }
         } else {
             $json = new \stdClass();
@@ -63,7 +68,9 @@ class SummaryController extends AbstractContentElementController
 
         $template->json = $json;
 
-        $template->jf_data = $this->getContent($jf, $json, $datimFormat);
+        $template->jf_data = null !== $template->error
+            ? $this->getContent($jf, $json, $datimFormat)
+            : [];
 
         $template->jf_summary_general = $GLOBALS['TL_LANG']['MSC']['jf_summary_general'];
 
@@ -114,7 +121,6 @@ class SummaryController extends AbstractContentElementController
             $multiFormGroup = null;
 
             foreach ($fields as $key => $field) {
-
                 if (!\in_array($field['type'], ['explanation', 'fieldsetStart', 'fieldsetStop', 'text', 'password', 'textarea', 'select', 'radio', 'checkbox', 'upload', 'range', 'conditionalselect', 'select_plus', 'textselect_plus', 'fileUpload_plus'], true)) {
                     continue;
                 }
@@ -153,7 +159,7 @@ class SummaryController extends AbstractContentElementController
                             'text' => $field['label'],
                             'subItems' => [],
                         ];
-                        //$field;
+                        // $field;
                         $items[$field['id'].'.0']['type'] = 'multi_form_group';
                         $items[$field['id'].'.0']['text'] = $field['label'];
                         $items[$field['id'].'.0']['subItems'] = [];
@@ -207,9 +213,9 @@ class SummaryController extends AbstractContentElementController
 
                     if (!empty($fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition'])) {
                         $expression = 'jointforms.'
-                            . $formKey . '.'
-                            . $fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition']
-                            . ' ? true : false';
+                            .$formKey.'.'
+                            .$fieldsets[array_key_last($fieldsets)]['conditionalFormFieldCondition']
+                            .' ? true : false';
 
                         if (!$jf->isElementVisible($expression)) {
                             continue;
@@ -264,20 +270,19 @@ class SummaryController extends AbstractContentElementController
 
             if (isset($multiFormGroupField[$multiFormGroup])) {
                 foreach ($multiFormGroupField[$multiFormGroup] as $source => $value) {
-                    $subItems[$multiFormGroup.'.0'] = array_slice(
-                            $subItems[$multiFormGroup.'.0'],
-                            0,
-                            array_search($source, array_keys($subItems[$multiFormGroup.'.0'])) + 1,
-                            true
-                        )
+                    $subItems[$multiFormGroup.'.0'] = \array_slice(
+                        $subItems[$multiFormGroup.'.0'],
+                        0,
+                        array_search($source, array_keys($subItems[$multiFormGroup.'.0']), true) + 1,
+                        true
+                    )
                         + $value
-                        + array_slice(
+                        + \array_slice(
                             $subItems[$multiFormGroup.'.0'],
-                            array_search($source, array_keys($subItems[$multiFormGroup.'.0'])) + 1,
-                            count($subItems[$multiFormGroup.'.0']) - 1,
+                            array_search($source, array_keys($subItems[$multiFormGroup.'.0']), true) + 1,
+                            \count($subItems[$multiFormGroup.'.0']) - 1,
                             true
-                        )
-                    ;
+                        );
                 }
             }
 
@@ -334,11 +339,11 @@ class SummaryController extends AbstractContentElementController
             ];
         }
 
-        #echo '<pre>';
-        #print_r($multiFormGroupField);
-        #print_r($data);
-        #echo '</pre>';
-        //die();
+        // echo '<pre>';
+        // print_r($multiFormGroupField);
+        // print_r($data);
+        // echo '</pre>';
+        // die();
 
         return $data;
     }
