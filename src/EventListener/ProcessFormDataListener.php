@@ -141,7 +141,6 @@ class ProcessFormDataListener extends ConfigurationProvider
 
         if (empty($item['submit'])) {
             $nextForm = $jf->getNextForm();
-            $model = FormModel::findById($nextForm);
 
             $target = $jf->getUrl($jf->page);
             if (null !== ($model = FormModel::findById($nextForm))) {
