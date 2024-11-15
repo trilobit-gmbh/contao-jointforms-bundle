@@ -166,7 +166,11 @@ class ConfigurationProvider
         $this->config['jointforms'] = new \stdClass();
 
         try {
-            $this->config['jointforms'] = json_decode($this->config['member']->jf_data, false, 512, \JSON_THROW_ON_ERROR);
+            if (null === $this->config['member']->jf_data) {
+                $this->config['jointforms'] = new \stdClass();
+            } else {
+                $this->config['jointforms'] = json_decode($this->config['member']->jf_data, false, 512, \JSON_THROW_ON_ERROR);
+            }
         } catch (\Exception $e) {
             $this->config['jointforms'] = new \stdClass();
         }
