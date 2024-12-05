@@ -324,6 +324,7 @@ class ConfigurationProvider
 
         if (null === $tl_form) {
             $tl_form = Input::get('tl_form');
+
             if (null === $tl_form) {
                 $tl_form = Input::get('auto_item');
             }
@@ -361,7 +362,7 @@ class ConfigurationProvider
 
             if ('todo' === $item['state']
                 && Environment::get('request') !== $item['link']
-                && $this->evaluateExpression($item['visible_expression'], $item)
+                && $this->evaluateExpression($item['visible_expression'] ?? '', $item)
             ) {
                 Input::setGet('tl_form', $item['id']);
 
