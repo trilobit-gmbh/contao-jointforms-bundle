@@ -429,6 +429,10 @@ class ConfigurationProvider
 
     protected function evaluateExpression($expression, $item)
     {
+        if (empty($expression)) {
+            return true;
+        }
+
         try {
             return $this->expression->evaluate(
                 $expression,
